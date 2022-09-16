@@ -1,26 +1,28 @@
 import { useMachine } from "@xstate/react"
 import type { NextPage } from "next"
-import { declarationMachine } from "../machines/declarationMachine"
+import { declarationMachine } from "../machines/firstMachine"
 
 const Home: NextPage = () => {
   const [state, send] = useMachine(declarationMachine)
 
   return (
     <div>
-      {JSON.stringify(state.value)}
+      {JSON.stringify(state.value)} <br />
+      {JSON.stringify(state.context)}
+      <br />
       <button
         onClick={() => {
-          send("MOUSEOVER")
+          send("previous")
         }}
       >
-        Mouse hover
+        Previous
       </button>
       <button
         onClick={() => {
-          send("MOUSEOUT")
+          send("next")
         }}
       >
-        Mouse out
+        Next
       </button>
     </div>
   )
