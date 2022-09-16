@@ -13,9 +13,11 @@
     "check-all": "yarn lint && yarn type-check && yarn test --watchAll=false"
   },
   "dependencies": {
+    "@xstate/react": "^3.0.1",
     "next": "12.2.0",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "xstate": "^4.33.6"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^5.16.2",
