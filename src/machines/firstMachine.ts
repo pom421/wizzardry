@@ -1,25 +1,27 @@
-import { assign, createMachine } from "xstate"
+import Router from "next/router"
+import { createModel } from "xstate/lib/model"
 
 export const EGAPRO_STEPS = ["page1", "page2", "page3", "page4"]
 
+const wizardModel = createModel(
+  {
+    errorMessage: undefined as string | undefined,
+    currentStep: EGAPRO_STEPS[0] as string | undefined,
+  },
+  {
+    events: {
+      goToPreviousPage: () => ({}),
+      goToNextPage: () => ({}),
+    },
+  },
+)
+
 export const declarationMachine =
-  /** @xstate-layout N4IgpgJg5mDOIC5QTAYwDYEMBOmAuAlgPYB2AspqgBYElgB0AwtmPrVAAR0Du9AylSLd2HAA6YYAYjoAPPIlCiisAoVIKQMxACYA7AEZ6AVgAcANiMBmACxGzABiMBOS2csAaEAE9E1-U-pdbWttU0tLEz8je2sAX1jPFAwcNlIKaloGZlZCEk4efkFhPLEJMElRFgA3YgBXeCQQJRU1Eg0tBABaS396fQt9cPsTEx7tE08fBGtw+m0zXXC9XVse+ISQEiIUBuQ0LFxW9Jo6JhY2EoKBIRFxGA1m1WI2xo79a3onEZNoo319SLBcyTRCWeyGSxGGZOMyjebWXQmeKJfYpI6UE5Zc65fJgbgPZRPdSvRDdGZ9AZDEZjCbeHTaAKuMz-cH-aywlbIkBJA6pcgYzIElrPdqk1y6Cl-KmjfTjEEIfRGCWWXSI7ThJz2cYwpHrIA */
-  createMachine(
+  /** @xstate-layout N4IgpgJg5mDOIC5QTAYwDYEMBOmAuAlgPYB2AspqgBYElgB0AwtmPrVAAR0Du9AylSLd2HAA6YYAYihEAKkQAKLAG7EArrAUSwiUKKKwChUrpAAPRAFoAjAE4AHPQDMAdgAMtt9ZdO3LgKwALABMLgA0IACeiABswW70oTFu-v7WbjFOgdYAvjkRKBg4bKQU1LQMzKyEJJw8-ILCtWLa0nJEAHJgZnhaMKb6hsYkphYITrYx9IFOwWkuMdb+wU5pMRHRCP62wfTWq7YTgf4utjv+efkgJEQo8EgghVi4w2U0dEwsbM31AkIi4n6D0GRmIIweY2swWs9Hsvhc1kC9kRyIywQ2iCRU3s2wmGQCq22gTyBTQzxK5Eo70qXxqdTA3AGBlBJghVmCHOc7k83nhQVCGIQ2UCsIR1n27nswXsbmJVyexVeVIqTKGYNG7MCU1cHi8Pj8-PCUUQWV29ilcJiLmy8SRLkuOSAA */
+  wizardModel.createMachine(
     {
-      context: {
-        errorMessage: undefined as string | undefined,
-        currentStep: EGAPRO_STEPS[0] as string | undefined,
-      },
-      tsTypes: {} as import("./firstMachine.typegen").Typegen0,
-      schema: {
-        events: {} as { type: "PREVIOUS" } | { type: "NEXT" },
-        // services: {} as {
-        //   goToStep: {
-        //     data: void
-        //   }
-        // },
-      },
       id: "declarationMachine",
+      predictableActionArguments: true,
       initial: "Creating new",
       states: {
         "Creating new": {
@@ -27,12 +29,12 @@ export const declarationMachine =
           states: {
             "Showing page": {
               on: {
-                PREVIOUS: {
-                  actions: "Go to previous page",
+                goToPreviousPage: {
+                  actions: ["Calculate previous page", "Store in local storage", "Route to page"],
                   cond: "Is not the first page",
                 },
-                NEXT: {
-                  actions: "Go to next page",
+                goToNextPage: {
+                  actions: ["Calculate next page", "Store in local storage", "Route to page"],
                   cond: "Is not the last page",
                 },
               },
@@ -51,18 +53,24 @@ export const declarationMachine =
         },
       },
       actions: {
-        "Go to next page": assign((context, event) => {
-          const index = EGAPRO_STEPS.indexOf(context.currentStep)
-          return {
-            currentStep: EGAPRO_STEPS[index + 1],
-          }
-        }),
-        "Go to previous page": assign((context, event) => {
+        "Calculate previous page": wizardModel.assign((context) => {
           const index = EGAPRO_STEPS.indexOf(context.currentStep)
           return {
             currentStep: EGAPRO_STEPS[index - 1],
           }
         }),
+        "Calculate next page": wizardModel.assign((context) => {
+          const index = EGAPRO_STEPS.indexOf(context.currentStep)
+          return {
+            currentStep: EGAPRO_STEPS[index + 1],
+          }
+        }),
+        "Store in local storage": (context) => {
+          localStorage.setItem("wizardModel-context", JSON.stringify(context))
+        },
+        "Route to page": (context) => {
+          Router.push(`/wizard/${context.currentStep}`)
+        },
       },
     },
   )
