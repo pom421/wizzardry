@@ -12,7 +12,7 @@ export const declarationMachine =
       },
       tsTypes: {} as import("./firstMachine.typegen").Typegen0,
       schema: {
-        events: {} as { type: "previous" } | { type: "next" },
+        events: {} as { type: "PREVIOUS" } | { type: "NEXT" },
         // services: {} as {
         //   goToStep: {
         //     data: void
@@ -27,12 +27,12 @@ export const declarationMachine =
           states: {
             "Showing page": {
               on: {
-                previous: {
-                  actions: "Decrement step",
+                PREVIOUS: {
+                  actions: "Go to previous page",
                   cond: "Is not the first page",
                 },
-                next: {
-                  actions: "Increment step",
+                NEXT: {
+                  actions: "Go to next page",
                   cond: "Is not the last page",
                 },
               },
@@ -51,13 +51,13 @@ export const declarationMachine =
         },
       },
       actions: {
-        "Increment step": assign((context, event) => {
+        "Go to next page": assign((context, event) => {
           const index = EGAPRO_STEPS.indexOf(context.currentStep)
           return {
             currentStep: EGAPRO_STEPS[index + 1],
           }
         }),
-        "Decrement step": assign((context, event) => {
+        "Go to previous page": assign((context, event) => {
           const index = EGAPRO_STEPS.indexOf(context.currentStep)
           return {
             currentStep: EGAPRO_STEPS[index - 1],

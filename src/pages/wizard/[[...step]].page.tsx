@@ -35,14 +35,14 @@ const WizardPage: NextPage = ({ step }: { step: string[] }) => {
         <br />
         <button
           onClick={() => {
-            send("previous")
+            send("PREVIOUS")
           }}
         >
           Previous
         </button>
         <button
           onClick={() => {
-            send("next")
+            send("NEXT")
           }}
         >
           Next

@@ -13,13 +13,13 @@ export interface Typegen0 {
     delays: never;
   };
   eventsCausingActions: {
-    "Decrement step": "previous";
-    "Increment step": "next";
+    "Go to next page": "NEXT";
+    "Go to previous page": "PREVIOUS";
   };
   eventsCausingServices: {};
   eventsCausingGuards: {
-    "Is not the first page": "previous";
-    "Is not the last page": "next";
+    "Is not the first page": "PREVIOUS";
+    "Is not the last page": "NEXT";
   };
   eventsCausingDelays: {};
   matchesStates:
