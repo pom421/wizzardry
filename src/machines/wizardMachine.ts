@@ -1,12 +1,11 @@
 import Router from "next/router"
 import { createModel } from "xstate/lib/model"
 
-export const EGAPRO_STEPS = ["page1", "page2", "page3", "page4"]
-
 const wizardModel = createModel(
   {
     errorMessage: undefined as string | undefined,
-    currentStep: EGAPRO_STEPS[0] as string | undefined,
+    currentStep: undefined as string | undefined,
+    allSteps: [] as string[],
   },
   {
     events: {
@@ -46,23 +45,23 @@ export const declarationMachine =
     {
       guards: {
         "Is not the first page": (context) => {
-          return context.currentStep !== EGAPRO_STEPS[0]
+          return context.currentStep !== context.allSteps[0]
         },
         "Is not the last page": (context) => {
-          return context.currentStep !== EGAPRO_STEPS[EGAPRO_STEPS.length - 1]
+          return context.currentStep !== context.allSteps[context.allSteps.length - 1]
         },
       },
       actions: {
         "Calculate previous page": wizardModel.assign((context) => {
-          const index = EGAPRO_STEPS.indexOf(context.currentStep)
+          const index = context.allSteps.indexOf(context.currentStep)
           return {
-            currentStep: EGAPRO_STEPS[index - 1],
+            currentStep: context.allSteps[index - 1],
           }
         }),
         "Calculate next page": wizardModel.assign((context) => {
-          const index = EGAPRO_STEPS.indexOf(context.currentStep)
+          const index = context.allSteps.indexOf(context.currentStep)
           return {
-            currentStep: EGAPRO_STEPS[index + 1],
+            currentStep: context.allSteps[index + 1],
           }
         }),
         "Store in local storage": (context) => {

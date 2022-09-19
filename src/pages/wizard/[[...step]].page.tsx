@@ -1,6 +1,7 @@
 import { useMachine } from "@xstate/react"
 import type { NextPage } from "next"
-import { declarationMachine, EGAPRO_STEPS } from "../../machines/firstMachine"
+
+import { declarationMachine } from "../../machines/wizardMachine"
 
 export async function getServerSideProps({ query }) {
   const { step } = query
@@ -12,18 +13,16 @@ export async function getServerSideProps({ query }) {
   }
 }
 
-const WizardPage: NextPage = ({ step }: { step: string[] }) => {
-  // const router = useRouter()
+const EGAPRO_STEPS = ["page1", "page2", "page3", "page4"]
 
+const WizardPage: NextPage = ({ step }: { step: string[] }) => {
   const normalizedStep = EGAPRO_STEPS.indexOf(step[0]) >= 0 ? step[0] : EGAPRO_STEPS[0]
 
   const [state, send] = useMachine(declarationMachine, {
     context: {
       currentStep: normalizedStep,
+      allSteps: EGAPRO_STEPS,
     },
-    // services: {
-    //   goToStep: (stepName) => router.push("wizard/" + stepName),
-    // },
   })
 
   return (
