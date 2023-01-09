@@ -5,11 +5,11 @@ export const myZodSchema = z.object({
   "first-page": z.object({
     category: z.union([z.literal("recruiter"), z.literal("worker"), z.literal("")]),
   }),
-  "recruiter-form": z.object({
+  "recruiter-page": z.object({
     company: z.string().min(1),
     searchedSkill: z.string().min(1),
   }),
-  "worker-form": z.object({
+  "worker-page": z.object({
     name: z.string(),
     favoriteSkill: z.string().min(1),
   }),
@@ -22,11 +22,11 @@ export const initialData: z.infer<typeof myZodSchema> = {
   "first-page": {
     category: "",
   },
-  "recruiter-form": {
+  "recruiter-page": {
     company: "",
     searchedSkill: "",
   },
-  "worker-form": {
+  "worker-page": {
     name: "",
     favoriteSkill: "",
   },
@@ -42,11 +42,11 @@ export const initialData: z.infer<typeof myZodSchema> = {
 //   "form-2": {
 //     category: "recruiter" | "worker"
 //   }
-//   "recruiter-form": {
+//   "recruiter-page": {
 //     company: string
 //     skills: string[]
 //   }
-//   "worker-form": {
+//   "worker-page": {
 //     name: string
 //     skills: string[]
 //   }
@@ -55,26 +55,42 @@ export const initialData: z.infer<typeof myZodSchema> = {
 //   }
 // }
 
-// export const myFlow: WizardryFlow<MyState> = {
+// TODO - the labels of steps must match the keys of the state
 export const myFlow: UserFlow<z.infer<typeof myZodSchema>> = {
   initial: "first-page",
   steps: [
     {
-      label: "form-1",
+      label: "first-page",
+      next: (state) => (state["first-page"].category === "recruiter" ? "recruiter-page" : "worker-page"),
     },
     {
-      label: "form-2",
-      next: (state) => (state["first-page"].category === "recruiter" ? "recruiter-form" : "worker-form"),
-    },
-    {
-      label: "recruiter-form",
+      label: "recruiter-page",
       next: () => "last-page",
     },
     {
-      label: "worker-form",
+      label: "worker-page",
     },
+    { label: "last-page" },
   ],
   final: "last-page",
 }
 
 export const useJobMarketStore = buildStore(initialData)(myFlow)
+
+const DefaultPage = () => {
+  return <h1>Default page</h1>
+}
+
+const FirstPage = () => {
+  return <h1>FirstPage</h1>
+}
+
+const RecruiterForm = () => {
+  return <h1>RecruiterForm</h1>
+}
+
+export const userPages = {
+  default: DefaultPage,
+  "first-page": FirstPage,
+  "recruiter-page": RecruiterForm,
+}

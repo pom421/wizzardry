@@ -20,6 +20,7 @@ export type WizardryStore<FormData extends WizardryState> = {
   formData: FormData
   firstPage: () => void
   nextPage: () => void
+  setPage: (label: string) => void
 }
 
 export const buildStore =
@@ -30,6 +31,12 @@ export const buildStore =
         devtools((set) => ({
           currentPage: "",
           formData: initialData,
+          setPage: (label: string) =>
+            set((state) => {
+              if (userFlow.steps.map((step) => step.label).includes(label)) {
+                state.currentPage = label
+              }
+            }),
           firstPage: () => set(() => ({ currentPage: userFlow.initial })),
           nextPage: () => set((state) => ({ currentPage: state.currentPage })),
         })),

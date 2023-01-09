@@ -1,13 +1,23 @@
 import { useRouter } from "next/router"
+import { useEffect } from "react"
 import { mountStoreDevtool } from "simple-zustand-devtools"
-import { useJobMarketStore } from "../../store/user-data"
+import { useJobMarketStore, userPages } from "../../store/user-data"
 
 const WizardryPage = () => {
   const router = useRouter()
 
   const currentPage = useJobMarketStore((state) => state.currentPage)
+  const setPage = useJobMarketStore((state) => state.setPage)
 
-  const labelPage = router.query.data
+  const labelPage = Array.isArray(router.query.data) ? router.query.data[0] : router.query.data
+
+  const CurrentPage = userPages[currentPage] || userPages["default"]
+
+  useEffect(() => {
+    if (labelPage !== currentPage) {
+      setPage(labelPage)
+    }
+  }, [labelPage, currentPage, setPage])
 
   return (
     <>
@@ -16,6 +26,8 @@ const WizardryPage = () => {
       {labelPage}
 
       {currentPage}
+
+      {userPages[currentPage] && <CurrentPage />}
     </>
   )
 }
