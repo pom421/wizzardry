@@ -23,8 +23,6 @@ const WizardryPage = () => {
     <>
       <h1>Wizardry</h1>
 
-      {labelPage}
-
       {currentPage}
 
       {userPages[currentPage] && <CurrentPage />}

@@ -7,6 +7,7 @@ export type WizardryState = Record<string, Record<string, any>>
 export type Step<FormData> = {
   label: string
   next?: (state: FormData) => string
+  component: React.FC<{ formData: FormData; setFormData: (data: FormData) => void }>
 }
 
 export type UserFlow<FormData extends Record<string, Record<string, any>>> = {

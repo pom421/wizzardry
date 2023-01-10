@@ -2,9 +2,11 @@ import { z } from "zod"
 import { buildStore, UserFlow } from "./useWizardry"
 
 export const myZodSchema = z.object({
-  "first-page": z.object({
-    category: z.union([z.literal("recruiter"), z.literal("worker"), z.literal("")]),
-  }),
+  "first-page": z
+    .object({
+      category: z.union([z.literal("recruiter"), z.literal("worker"), z.literal("")]),
+    })
+    .describe("First page"),
   "recruiter-page": z.object({
     company: z.string().min(1),
     searchedSkill: z.string().min(1),
@@ -55,6 +57,26 @@ export const initialData: z.infer<typeof myZodSchema> = {
 //   }
 // }
 
+const DefaultPage = () => {
+  return <h1>Default page</h1>
+}
+
+const FirstPage = () => {
+  return <h1>First Page</h1>
+}
+
+const RecruiterPage = () => {
+  return <h1>Recruiter Page</h1>
+}
+
+const WorkerPage = () => {
+  return <h1>Worker Page</h1>
+}
+
+const LastPage = () => {
+  return <h1>Last Page</h1>
+}
+
 // TODO - the labels of steps must match the keys of the state
 export const myFlow: UserFlow<z.infer<typeof myZodSchema>> = {
   initial: "first-page",
@@ -62,35 +84,28 @@ export const myFlow: UserFlow<z.infer<typeof myZodSchema>> = {
     {
       label: "first-page",
       next: (state) => (state["first-page"].category === "recruiter" ? "recruiter-page" : "worker-page"),
+      component: FirstPage,
     },
     {
       label: "recruiter-page",
       next: () => "last-page",
+      component: RecruiterPage,
     },
     {
       label: "worker-page",
+      component: WorkerPage,
     },
-    { label: "last-page" },
+    { label: "last-page", component: LastPage },
   ],
   final: "last-page",
 }
 
 export const useJobMarketStore = buildStore(initialData)(myFlow)
 
-const DefaultPage = () => {
-  return <h1>Default page</h1>
-}
-
-const FirstPage = () => {
-  return <h1>FirstPage</h1>
-}
-
-const RecruiterForm = () => {
-  return <h1>RecruiterForm</h1>
-}
-
 export const userPages = {
   default: DefaultPage,
   "first-page": FirstPage,
-  "recruiter-page": RecruiterForm,
+  "recruiter-page": RecruiterPage,
+  "worker-page": WorkerPage,
+  "last-page": LastPage,
 }
