@@ -19,18 +19,19 @@ const useStep = (rawStep: string | string[]) => {
   // 2. Find the component of this step.
   const step = getStep(stepLabel)
   const Component = step.component
+  const next = step.next
 
   // 3. Caculate the next and previous step.
   const previousStep = getIndexOfStep(stepLabel) > 0 ? steps[getIndexOfStep(stepLabel) - 1] : undefined
   const nextStep = getIndexOfStep(stepLabel) < numberOfSteps - 1 ? steps[getIndexOfStep(stepLabel) + 1] : undefined
 
-  return { stepLabel, Component, previousStep, nextStep }
+  return { stepLabel, Component, previousStep, nextStep, next }
 }
 
 const WizzardryPage: NextPage = () => {
   const router = useRouter()
   const { step: rawStep } = router.query
-  const { stepLabel, Component, previousStep, nextStep } = useStep(rawStep)
+  const { stepLabel, Component, previousStep, nextStep, next } = useStep(rawStep)
 
   return (
     <>
