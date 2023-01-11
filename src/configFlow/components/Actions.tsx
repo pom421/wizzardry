@@ -1,6 +1,8 @@
 import { useRouter } from "next/router";
 
-export const Actions = ({ previous, next }: { previous?: string; next?: string }) => {
+type Props = { previous?: string; goNextStep?: () => void }
+
+export const Actions = ({ previous, goNextStep }: Props) => {
   const router = useRouter()
   // const url = useJobMarketStore((state) => state.url)
   // const nextPage = useJobMarketStore((state) => state.nextPage)
@@ -13,7 +15,7 @@ export const Actions = ({ previous, next }: { previous?: string; next?: string }
       <button onClick={() => router.push(previous)} disabled={!previous}>
         Previous
       </button>
-      <button onClick={() => router.push(next)} disabled={!next}>
+      <button onClick={goNextStep} disabled={!goNextStep}>
         Next
       </button>
     </>

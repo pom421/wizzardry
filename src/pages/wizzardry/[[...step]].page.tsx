@@ -1,5 +1,6 @@
 import { NextPage } from "next"
 import { useRouter } from "next/router"
+import { useState } from "react"
 import { Actions } from "../../configFlow/components"
 import { flowSteps } from "../../configFlow/flowSteps"
 
@@ -11,6 +12,8 @@ const getIndexOfStep = (label: string) => flowSteps.steps.findIndex((step) => st
 const numberOfSteps = flowSteps.steps.length
 
 const useStep = (rawStep: string | string[]) => {
+  const router = useRouter()
+  const [path, setPath] = useState<string[]>([])
   const stepLabel = normalizeStep(rawStep)
 
   // 1. Verify that the step is included in flowSteps.
@@ -18,33 +21,39 @@ const useStep = (rawStep: string | string[]) => {
 
   // 2. Find the component of this step.
   const step = getStep(stepLabel)
-  const Component = step.component
-  const next = step.next
 
   // 3. Caculate the next and previous step.
   const previousStep = getIndexOfStep(stepLabel) > 0 ? steps[getIndexOfStep(stepLabel) - 1] : undefined
   const nextStep = getIndexOfStep(stepLabel) < numberOfSteps - 1 ? steps[getIndexOfStep(stepLabel) + 1] : undefined
+  const goNextStep = () => {
+    setPath((path) => [...path, stepLabel])
+    router.push(nextStep)
+  }
 
-  return { stepLabel, Component, previousStep, nextStep, next }
+  return { step, previousStep, goNextStep, path }
 }
 
 const WizzardryPage: NextPage = () => {
   const router = useRouter()
-  const { step: rawStep } = router.query
-  const { stepLabel, Component, previousStep, nextStep, next } = useStep(rawStep)
+  const { step, previousStep, goNextStep, path } = useStep(router.query.step)
+
+  const stepLabel = step?.label
+  const Component = step?.component
 
   return (
     <>
       <h1>Wizzardry</h1>
 
-      <p>rawStep: {JSON.stringify(rawStep, null, 2)}</p>
+      <p>router.query.step: {JSON.stringify(router.query.step, null, 2)}</p>
 
       <p>step: {stepLabel}</p>
+
+      <p>Path: {JSON.stringify(path, null, 2)} </p>
 
       {stepLabel && (
         <>
           <Component />
-          <Actions previous={previousStep} next={nextStep} />
+          <Actions previous={previousStep} goNextStep={goNextStep} />
         </>
       )}
     </>
