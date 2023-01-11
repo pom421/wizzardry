@@ -1,5 +1,6 @@
+import { useRouter } from "next/router"
 import { z } from "zod"
-import { buildStore, UserFlow } from "./useWizardry"
+import { buildStore, UserFlow } from "./store"
 
 export const myZodSchema = z.object({
   "first-page": z
@@ -61,16 +62,48 @@ const DefaultPage = () => {
   return <h1>Default page</h1>
 }
 
+const Actions = () => {
+  const router = useRouter()
+  const url = useJobMarketStore((state) => state.url)
+  const nextPage = useJobMarketStore((state) => state.nextPage)
+  const previousPage = useJobMarketStore((state) => state.previousPage)
+
+  return (
+    <>
+      <pre>{JSON.stringify(router, null, 2)}</pre>
+
+      <button onClick={() => router.push(previousPage)}>Previous</button>
+      <button onClick={() => router.push(nextPage)}>Next</button>
+    </>
+  )
+}
+
 const FirstPage = () => {
-  return <h1>First Page</h1>
+  return (
+    <>
+      <h1>First Page</h1>
+
+      <Actions />
+    </>
+  )
 }
 
 const RecruiterPage = () => {
-  return <h1>Recruiter Page</h1>
+  return (
+    <>
+      <h1>Recruiter Page</h1>
+      <Actions />
+    </>
+  )
 }
 
 const WorkerPage = () => {
-  return <h1>Worker Page</h1>
+  return (
+    <>
+      <h1>Worker Page</h1>
+      <Actions />
+    </>
+  )
 }
 
 const LastPage = () => {
@@ -101,11 +134,3 @@ export const myFlow: UserFlow<z.infer<typeof myZodSchema>> = {
 }
 
 export const useJobMarketStore = buildStore(initialData)(myFlow)
-
-export const userPages = {
-  default: DefaultPage,
-  "first-page": FirstPage,
-  "recruiter-page": RecruiterPage,
-  "worker-page": WorkerPage,
-  "last-page": LastPage,
-}

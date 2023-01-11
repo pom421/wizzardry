@@ -9,7 +9,7 @@
     "lint": "next lint",
     "test": "jest --watch",
     "type-check": "tsc --pretty --noEmit",
-    "fresh-install": "rm -rf node_modules/ build/ && yarn",
+    "fresh-install": "rm -rf node_modules/ build/ .next/ && yarn",
     "check-all": "yarn lint && yarn type-check && yarn test --watchAll=false"
   },
   "dependencies": {
