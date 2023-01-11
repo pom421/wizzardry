@@ -1,20 +1,17 @@
 import { z } from "zod"
+import { firstStepSchema } from "./components"
 
 export const flowStateSchema = z.object({
-  "first-page": z
-    .object({
-      category: z.union([z.literal("recruiter"), z.literal("worker"), z.literal("")]),
-    })
-    .describe("First page"),
-  "recruiter-page": z.object({
+  "first-step": firstStepSchema,
+  "recruiter-step": z.object({
     company: z.string().min(1),
     searchedSkill: z.string().min(1),
   }),
-  "worker-page": z.object({
+  "worker-step": z.object({
     name: z.string(),
     favoriteSkill: z.string().min(1),
   }),
-  "last-page": z.object({
+  "last-step": z.object({
     message: z.string(),
   }),
 })
@@ -22,18 +19,18 @@ export const flowStateSchema = z.object({
 export type FlowStateType = z.infer<typeof flowStateSchema>
 
 export const initialData: FlowStateType = {
-  "first-page": {
+  "first-step": {
     category: "",
   },
-  "recruiter-page": {
+  "recruiter-step": {
     company: "",
     searchedSkill: "",
   },
-  "worker-page": {
+  "worker-step": {
     name: "",
     favoriteSkill: "",
   },
-  "last-page": {
+  "last-step": {
     message: "",
   },
 }
