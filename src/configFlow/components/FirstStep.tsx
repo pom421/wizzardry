@@ -2,6 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { AlertInput } from "../../components/AlertInput"
+import { useFormManager } from "../../lib/useFormManager"
 
 export const firstStepSchema = z.object({
   category: z.union([z.literal("recruiter"), z.literal("worker"), z.literal("")]),
@@ -10,6 +11,8 @@ export const firstStepSchema = z.object({
 type FirstStepType = z.infer<typeof firstStepSchema>
 
 export const FirstStep = () => {
+  const formData = useFormManager((state) => state.formData)
+  const saveFormData = useFormManager((state) => state.saveFormData)
   const {
     register,
     handleSubmit,
@@ -18,12 +21,13 @@ export const FirstStep = () => {
     mode: "onChange",
     resolver: zodResolver(firstStepSchema),
     defaultValues: {
-      category: "",
+      category: formData["first-step"].category || "",
     },
   })
 
   const onSubmit = (data: FirstStepType) => {
     console.log("data", data)
+    saveFormData({ "first-step": { category: data.category } })
   }
 
   return (

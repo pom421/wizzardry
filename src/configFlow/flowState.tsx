@@ -1,12 +1,9 @@
 import { z } from "zod"
-import { firstStepSchema } from "./components"
+import { firstStepSchema, recruiterStepSchema } from "./components"
 
 export const flowStateSchema = z.object({
   "first-step": firstStepSchema,
-  "recruiter-step": z.object({
-    company: z.string().min(1),
-    searchedSkill: z.string().min(1),
-  }),
+  "recruiter-step": recruiterStepSchema,
   "worker-step": z.object({
     name: z.string(),
     favoriteSkill: z.string().min(1),
@@ -18,7 +15,7 @@ export const flowStateSchema = z.object({
 
 export type FlowStateType = z.infer<typeof flowStateSchema>
 
-export const initialData: FlowStateType = {
+export const initialFlowStateData: FlowStateType = {
   "first-step": {
     category: "",
   },
