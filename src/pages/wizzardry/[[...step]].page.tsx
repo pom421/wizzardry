@@ -11,9 +11,11 @@ const getStep = (label: string) => flowSteps.steps.find((step) => step.label ===
 const getIndexOfStep = (label: string) => flowSteps.steps.findIndex((step) => step.label === label)
 const numberOfSteps = flowSteps.steps.length
 
+export type Position = "first" | "middle" | "final"
+
 const useStep = (rawStep: string | string[]) => {
   const router = useRouter()
-  const [path, setPath] = useState<string[]>([])
+  const [visitedSteps, setVisitedSteps] = useState<string[]>([])
   const stepLabel = normalizeStep(rawStep)
 
   // 1. Verify that the step is included in flowSteps.
@@ -25,17 +27,31 @@ const useStep = (rawStep: string | string[]) => {
   // 3. Caculate the next and previous step.
   const previousStep = getIndexOfStep(stepLabel) > 0 ? steps[getIndexOfStep(stepLabel) - 1] : undefined
   const nextStep = getIndexOfStep(stepLabel) < numberOfSteps - 1 ? steps[getIndexOfStep(stepLabel) + 1] : undefined
+
   const goNextStep = () => {
-    setPath((path) => [...path, stepLabel])
+    const indexCurrentStep = visitedSteps.indexOf(stepLabel)
+
+    if (indexCurrentStep === -1) setVisitedSteps([...visitedSteps, stepLabel])
+    else {
+      // console.log("visitedSteps[indexCurrentStep + 1]", visitedSteps[indexCurrentStep + 1])
+      // console.log("nextStep", nextStep)
+
+      if (visitedSteps[indexCurrentStep + 1] !== nextStep) {
+        setVisitedSteps([...visitedSteps.slice(0, indexCurrentStep)])
+      }
+    }
     router.push(nextStep)
   }
 
-  return { step, previousStep, goNextStep, path }
+  const position: Position =
+    step.label === flowSteps.initial ? ("first" as const) : step.label === flowSteps.final ? "final" : "middle"
+
+  return { step, previousStep, goNextStep, visitedSteps, position }
 }
 
 const WizzardryPage: NextPage = () => {
   const router = useRouter()
-  const { step, previousStep, goNextStep, path } = useStep(router.query.step)
+  const { step, previousStep, goNextStep, visitedSteps, position } = useStep(router.query.step)
 
   const stepLabel = step?.label
   const Component = step?.component
@@ -48,12 +64,14 @@ const WizzardryPage: NextPage = () => {
 
       <p>step: {stepLabel}</p>
 
-      <p>Path: {JSON.stringify(path, null, 2)} </p>
+      <p>position: {position}</p>
+
+      <p>visitedSteps: {JSON.stringify(visitedSteps, null, 2)} </p>
 
       {stepLabel && (
         <>
+          <Actions previous={previousStep} goNextStep={goNextStep} position={position} />
           <Component />
-          <Actions previous={previousStep} goNextStep={goNextStep} />
         </>
       )}
     </>

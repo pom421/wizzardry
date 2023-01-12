@@ -1,7 +1,12 @@
 import type { NextPage } from "next"
+import Link from "next/link"
 
 const Home: NextPage = () => {
-  return <div>Go to http://localhost:3000/wizard/</div>
+  return (
+    <div>
+      Go to Wizzardy page : <Link href="/wizzardry/first-step">Wizzardry</Link>
+    </div>
+  )
 }
 
 export default Home
