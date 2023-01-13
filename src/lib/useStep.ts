@@ -3,18 +3,6 @@ import { useState } from "react"
 import { FlowStateType } from "../configFlow/flowState"
 import { UserFlow } from "./wizzardry"
 
-// import create from "zustand"
-
-// const useStep = create((set) => ({
-//   step: "",
-//   previousStep: () => void,
-//   goNextStep: () => void,
-//   visitedSteps: [],
-//   positionInFlow: "first" as const,
-//   increasePopulation: () => set((state) => ({ bears: state.bears + 1 })),
-//   removeAllBears: () => set({ bears: 0 }),
-// }))
-
 export type PositionInFlow = "first" | "middle" | "final"
 
 /**
