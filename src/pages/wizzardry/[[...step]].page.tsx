@@ -9,11 +9,11 @@ export const useStep = createUseStep(flowSteps)
 
 const WizzardryPage: NextPage = () => {
   const stepInfos = useStep()
-  const { step, previousStep, goNextStep, positionInFlow } = stepInfos
+  const { currentStep, previousStep, goNextStep, positionInFlow } = stepInfos
   const formData = useFormManager((state) => state.formData)
 
-  const stepLabel = step?.label
-  const Component = step?.component
+  const stepLabel = currentStep?.label
+  const Component = currentStep?.component
 
   return (
     <ClientOnly>

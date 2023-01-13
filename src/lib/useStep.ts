@@ -3,6 +3,18 @@ import { useState } from "react"
 import { FlowStateType } from "../configFlow/flowState"
 import { UserFlow } from "./wizzardry"
 
+// import create from "zustand"
+
+// const useStep = create((set) => ({
+//   step: "",
+//   previousStep: () => void,
+//   goNextStep: () => void,
+//   visitedSteps: [],
+//   positionInFlow: "first" as const,
+//   increasePopulation: () => set((state) => ({ bears: state.bears + 1 })),
+//   removeAllBears: () => set({ bears: 0 }),
+// }))
+
 export type PositionInFlow = "first" | "middle" | "final"
 
 /**
@@ -12,49 +24,71 @@ export type PositionInFlow = "first" | "middle" | "final"
  * @returns a custom hook with helpers.
  */
 export const createUseStep = (flowSteps: UserFlow<FlowStateType>) => {
+  // Some helpers on flowSteps.
   const normalizeStep = (query: string | string[]) =>
     Array.isArray(query) ? (query.length > 0 ? query[0] : "") : query
   const steps = flowSteps.steps.map((step) => step.label)
-  const getStep = (label: string) => flowSteps.steps.find((step) => step.label === label)
-  const getIndexOfStep = (label: string) => flowSteps.steps.findIndex((step) => step.label === label)
   const numberOfSteps = flowSteps.steps.length
+  const firstStep = flowSteps.initial
+  const finalStep = flowSteps.final
+  const getStepIndexOf = (label: string) => flowSteps.steps.findIndex((step) => step.label === label)
+  const getStepWithName = (label: string) => flowSteps.steps.find((step) => step.label === label)
+  /** Natural next step of the current step, assuming there is no next function */
+  const naturalNextStep = (label: string) =>
+    getStepWithName(getStepIndexOf(label) < numberOfSteps - 1 ? steps[getStepIndexOf(label) + 1] : finalStep)
 
   return () => {
     const router = useRouter()
     const rawStep = router.query.step
-    const [visitedSteps, setVisitedSteps] = useState<string[]>([])
     const stepLabel = normalizeStep(rawStep)
+    const [visitedSteps, setVisitedSteps] = useState<string[]>([])
+
+    const currentStep = getStepWithName(stepLabel)
 
     // 1. Verify that the step is included in flowSteps.
-    if (!steps.includes(stepLabel)) return {}
+    if (!currentStep) return {}
 
-    // 2. Find the component of this step.
-    const step = getStep(stepLabel)
+    /** Real next step of the current step, using next function if any */
+    const realNextStep = (flowState: FlowStateType) =>
+      currentStep.next ? getStepWithName(currentStep.next(flowState)) : naturalNextStep(stepLabel)
 
-    // 3. Caculate the next and previous step.
-    const previousStep = getIndexOfStep(stepLabel) > 0 ? steps[getIndexOfStep(stepLabel) - 1] : undefined
+    return {
+      /** Current step showed */
+      currentStep,
 
-    // TODO: Make nextStep a reducer function, which takes state in parameter.
-    const nextStep = getIndexOfStep(stepLabel) < numberOfSteps - 1 ? steps[getIndexOfStep(stepLabel) + 1] : undefined
+      /** Previous step of the current step */
+      previousStep: getStepWithName(
+        // getIndexOfStep(stepLabel) > 0 ? steps[getIndexOfStep(stepLabel) - 1] : firstStep,
+        visitedSteps.findIndex((step) => step === stepLabel) > 0
+          ? visitedSteps[visitedSteps.findIndex((step) => step === stepLabel) - 1]
+          : firstStep,
+      ),
 
-    const goNextStep = () => {
-      const indexCurrentStep = visitedSteps.indexOf(stepLabel)
+      /** Function to call to show the next step */
+      goNextStep(flowState: FlowStateType) {
+        const nextStep = realNextStep(flowState)
+        const indexCurrentStep = visitedSteps.indexOf(stepLabel)
 
-      if (indexCurrentStep === -1) setVisitedSteps([...visitedSteps, stepLabel])
-      else {
-        // console.log("visitedSteps[indexCurrentStep + 1]", visitedSteps[indexCurrentStep + 1])
-        // console.log("nextStep", nextStep)
+        if (indexCurrentStep === -1) setVisitedSteps([...visitedSteps, stepLabel])
+        else {
+          // console.log("visitedSteps[indexCurrentStep + 1]", visitedSteps[indexCurrentStep + 1])
+          // console.log("nextStep", nextStep)
 
-        if (visitedSteps[indexCurrentStep + 1] !== nextStep) {
-          setVisitedSteps([...visitedSteps.slice(0, indexCurrentStep)])
+          if (visitedSteps[indexCurrentStep + 1] !== nextStep.label) {
+            setVisitedSteps([...visitedSteps.slice(0, indexCurrentStep)])
+          }
         }
-      }
-      router.push(nextStep)
+        router.push(nextStep.label)
+      },
+
+      /** Get if we are in first or last position, for UI needs */
+      get positionInFlow() {
+        return this.currentStep.label === flowSteps.initial
+          ? ("first" as const)
+          : this.currentStep.label === flowSteps.final
+          ? "final"
+          : "middle"
+      },
     }
-
-    const positionInFlow: PositionInFlow =
-      step.label === flowSteps.initial ? ("first" as const) : step.label === flowSteps.final ? "final" : "middle"
-
-    return { step, previousStep, goNextStep, visitedSteps, positionInFlow }
   }
 }
