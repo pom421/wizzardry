@@ -1,7 +1,7 @@
 import { useRouter } from "next/router"
 import { useEffect } from "react"
 import { mountStoreDevtool } from "simple-zustand-devtools"
-import { useJobMarketStore } from "../../../src/store/user-data"
+import { useJobMarketStore } from "../../store/user-data"
 
 const WizardryPage = () => {
   const router = useRouter()
