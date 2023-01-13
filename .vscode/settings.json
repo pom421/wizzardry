@@ -1,41 +1,37 @@
 {
-    "typescript.tsdk": "node_modules/typescript/lib",
-    "typescript.preferences.importModuleSpecifier": "project-relative",
-    "editor.codeActionsOnSave": {
-        "source.organizeImports": true,
-        "source.fixAll.eslint": true,
+  // TSC to use in VSCode.
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.importModuleSpecifier": "project-relative",
+  "editor.codeActionsOnSave": {
+    // "source.organizeImports": true,
+    "source.fixAll.eslint": true
+  },
+  "[typescript][javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  // For JSONC, like this file, we want to format on save.
+  "[jsonc]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "files.associations": {
+    ".env*": "dotenv"
+  },
+  "vsicons.associations.files": [
+    {
+      "icon": "tsconfig",
+      "extensions": ["tsconfig.build.json", "tsconfig.paths.json"],
+      "filename": true
     },
-    "[typescript]": {
-        "editor.defaultFormatter": "vscode.typescript-language-features"
+    {
+      "icon": "todo",
+      "extensions": ["TODO.md"],
+      "filename": true
     },
-    "[javascript]": {
-        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
-    },
-    "files.associations": {
-        ".env*": "dotenv",
-    },
-    "vsicons.associations.files": [
-        {
-            "icon": "tsconfig",
-            "extensions": [
-                "tsconfig.build.json",
-                "tsconfig.paths.json",
-            ],
-            "filename": true
-        },
-        {
-            "icon": "todo",
-            "extensions": [
-                "TODO.md",
-            ],
-            "filename": true
-        },
-        {
-            "icon": "docker",
-            "extensions": [
-                "docker-compose.build.yml",
-            ],
-            "filename": true
-        },
-    ]
+    {
+      "icon": "docker",
+      "extensions": ["docker-compose.build.yml"],
+      "filename": true
+    }
+  ]
 }

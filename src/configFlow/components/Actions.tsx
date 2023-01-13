@@ -1,10 +1,11 @@
-import { useRouter } from "next/router";
-import { Position } from "../../pages/wizzardry/[[...step]].page";
+import { useRouter } from "next/router"
+import type { PositionInFlow } from "../../lib/useStep"
 
-type Props = { previous?: string; goNextStep?: () => void; position: Position }
+type Props = { previous?: string; goNextStep?: () => void; positionInFlow: PositionInFlow }
 
-export const Actions = ({ previous, goNextStep, position }: Props) => {
+export const Actions = ({ previous, goNextStep, positionInFlow }: Props) => {
   const router = useRouter()
+
   // const url = useJobMarketStore((state) => state.url)
   // const nextPage = useJobMarketStore((state) => state.nextPage)
   // const previousPage = useJobMarketStore((state) => state.previousPage)
@@ -13,10 +14,10 @@ export const Actions = ({ previous, goNextStep, position }: Props) => {
     <>
       {/* <pre>{JSON.stringify(router, null, 2)}</pre> */}
 
-      <button onClick={() => router.push(previous)} disabled={position === "first"}>
+      <button onClick={() => router.push(previous)} disabled={positionInFlow === "first"}>
         Previous
       </button>
-      <button onClick={goNextStep} disabled={position === "final"}>
+      <button onClick={goNextStep} disabled={positionInFlow === "final"}>
         Next
       </button>
     </>

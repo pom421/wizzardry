@@ -1,13 +1,10 @@
 import { z } from "zod"
-import { firstStepSchema, recruiterStepSchema } from "./components"
+import { firstStepSchema, recruiterStepSchema, workerStepSchema } from "./components"
 
 export const flowStateSchema = z.object({
   "first-step": firstStepSchema,
   "recruiter-step": recruiterStepSchema,
-  "worker-step": z.object({
-    name: z.string(),
-    favoriteSkill: z.string().min(1),
-  }),
+  "worker-step": workerStepSchema,
   "last-step": z.object({
     message: z.string(),
   }),

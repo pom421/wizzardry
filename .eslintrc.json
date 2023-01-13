@@ -2,7 +2,13 @@
   // Parser to make ESLint able to parse TS files.
   "parser": "@typescript-eslint/parser",
   // Bunch of rules.
-  "plugins": ["@typescript-eslint", "jest", "jsx-a11y", "testing-library", "jest-dom"],
+  "plugins": [
+    "@typescript-eslint",
+    "jest",
+    "jsx-a11y",
+    "testing-library",
+    "jest-dom"
+  ],
   // Rules to be used.
   "extends": [
     "eslint:recommended",

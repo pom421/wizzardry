@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { AlertInput } from "../../components/AlertInput"
+import { AlertInput } from "../../../archives/components/AlertInput"
 import { useFormManager } from "../../lib/useFormManager"
 
 export const firstStepSchema = z.object({
@@ -26,7 +26,6 @@ export const FirstStep = () => {
   })
 
   const onSubmit = (data: FirstStepType) => {
-    console.log("data", data)
     saveFormData({ "first-step": { category: data.category } })
   }
 

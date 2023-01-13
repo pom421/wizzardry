@@ -3,12 +3,12 @@ import type { NextPage } from "next"
 import { useRouter } from "next/router"
 import React from "react"
 
-import type { WizardryContext } from "../../machines/wizardMachine"
+import type { WizardryContext } from "../../archives/machines/wizardMachine"
 
-import { Form1 } from "../../components/forms/Form1"
-import { Form2 } from "../../components/forms/Form2"
-import { FormEnd } from "../../components/forms/FormEnd"
-import { declarationMachine } from "../../machines/wizardMachine"
+import { Form1 } from "../../archives/components/forms/Form1"
+import { Form2 } from "../../archives/components/forms/Form2"
+import { FormEnd } from "../../archives/components/forms/FormEnd"
+import { declarationMachine } from "../../archives/machines/wizardMachine"
 
 const EGAPRO_STEPS = [Form1, Form2, FormEnd]
 

@@ -1,4 +1,4 @@
-import { UserFlow } from "../lib/wizardry"
+import { UserFlow } from "../lib/wizzardry"
 import { FinalStep, FirstStep, RecruiterStep, WorkerStep } from "./components"
 import type { FlowStateType } from "./flowState"
 
