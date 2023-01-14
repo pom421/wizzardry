@@ -7,7 +7,7 @@ import { flowSteps } from "../../configFlow/flowSteps"
 import { createFlowStepsHelpers, createUseWizzardryManager } from "../../lib/useWizzardryManager"
 
 export const flowStepsHelpers = createFlowStepsHelpers(flowSteps)
-const { getStepWithName, steps } = flowStepsHelpers
+const { getStepWithName } = flowStepsHelpers
 export const useWizzardryManager = createUseWizzardryManager(flowStepsHelpers)
 
 const getStepInUrl = (path: string) => {
@@ -25,10 +25,10 @@ const WizzardryPage: NextPage = () => {
   // Sync the URL with the current step.
   useEffect(() => {
     const stepInUrl = getStepInUrl(router.asPath)
-    if (currentStep !== stepInUrl && steps.includes(stepInUrl)) {
+    if (currentStep !== stepInUrl && !visitedSteps.includes(stepInUrl)) {
       router.push(currentStep, undefined, { shallow: true })
     }
-  }, [router.asPath, currentStep, router])
+  }, [router.asPath, currentStep, router, visitedSteps])
 
   return (
     <ClientOnly>

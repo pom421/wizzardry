@@ -107,7 +107,7 @@ export const createUseWizzardryManager = (helpers: ReturnType<typeof createFlowS
           }),
       })),
       {
-        name: "store-form6", // name of item in the storage (must be unique)
+        name: "store-form7", // name of item in the storage (must be unique)
         getStorage: () => sessionStorage, // formData are removed when user is disconnected
       },
     ),
