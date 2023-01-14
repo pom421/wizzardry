@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { AlertInput } from "../../../archives/components/AlertInput"
-import { useFormManager } from "../../lib/useFormManager"
+import { useWizzardryManager } from "../../pages/wizzardry/[[...step]].page"
 
 export const workerStepSchema = z.object({
   name: z.string().min(1),
@@ -12,8 +12,8 @@ export const workerStepSchema = z.object({
 type WorkerStepType = z.infer<typeof workerStepSchema>
 
 export const WorkerStep = () => {
-  const formData = useFormManager((state) => state.formData)
-  const saveFormData = useFormManager((state) => state.saveFormData)
+  const formData = useWizzardryManager((state) => state.formData)
+  const saveFormData = useWizzardryManager((state) => state.saveFormData)
   const {
     register,
     handleSubmit,

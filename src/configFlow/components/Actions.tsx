@@ -1,25 +1,14 @@
-import { useRouter } from "next/router"
-import type { PositionInFlow } from "../../lib/useStep"
+import { useWizzardryManager } from "../../pages/wizzardry/[[...step]].page"
 
-type Props = { previous?: string; goNextStep?: () => void; positionInFlow: PositionInFlow }
-
-export const Actions = ({ previous, goNextStep, positionInFlow }: Props) => {
-  const router = useRouter()
-
-  // const url = useJobMarketStore((state) => state.url)
-  // const nextPage = useJobMarketStore((state) => state.nextPage)
-  // const previousPage = useJobMarketStore((state) => state.previousPage)
+export const Actions = () => {
+  const formData = useWizzardryManager((state) => state.formData)
+  const goToNextStep = useWizzardryManager((state) => state.goToNextStep)
+  const goToPreviousStep = useWizzardryManager((state) => state.goToPreviousStep)
 
   return (
     <>
-      {/* <pre>{JSON.stringify(router, null, 2)}</pre> */}
-
-      <button onClick={() => router.push(previous)} disabled={positionInFlow === "first"}>
-        Previous
-      </button>
-      <button onClick={goNextStep} disabled={positionInFlow === "final"}>
-        Next
-      </button>
+      <button onClick={() => goToPreviousStep()}>Previous</button>
+      <button onClick={() => goToNextStep(formData)}>Next</button>
     </>
   )
 }

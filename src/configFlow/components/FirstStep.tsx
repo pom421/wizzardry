@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { AlertInput } from "../../../archives/components/AlertInput"
-import { useFormManager } from "../../lib/useFormManager"
+import { useWizzardryManager } from "../../pages/wizzardry/[[...step]].page"
 
 export const firstStepSchema = z.object({
   category: z.union([z.literal("recruiter"), z.literal("worker"), z.literal("")]),
@@ -11,8 +11,8 @@ export const firstStepSchema = z.object({
 type FirstStepType = z.infer<typeof firstStepSchema>
 
 export const FirstStep = () => {
-  const formData = useFormManager((state) => state.formData)
-  const saveFormData = useFormManager((state) => state.saveFormData)
+  const formData = useWizzardryManager((state) => state.formData)
+  const saveFormData = useWizzardryManager((state) => state.saveFormData)
   const {
     register,
     handleSubmit,

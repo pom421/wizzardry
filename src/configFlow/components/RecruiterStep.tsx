@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { AlertInput } from "../../../archives/components/AlertInput"
-import { useFormManager } from "../../lib/useFormManager"
+import { useWizzardryManager } from "../../pages/wizzardry/[[...step]].page"
 
 export const recruiterStepSchema = z.object({
   company: z.string().min(1),
@@ -12,8 +12,8 @@ export const recruiterStepSchema = z.object({
 type RecruiterStepType = z.infer<typeof recruiterStepSchema>
 
 export const RecruiterStep = () => {
-  const formData = useFormManager((state) => state.formData)
-  const saveFormData = useFormManager((state) => state.saveFormData)
+  const formData = useWizzardryManager((state) => state.formData)
+  const saveFormData = useWizzardryManager((state) => state.saveFormData)
   const {
     register,
     handleSubmit,

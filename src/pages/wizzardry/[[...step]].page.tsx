@@ -1,45 +1,56 @@
 import { NextPage } from "next"
+import { useRouter } from "next/router"
+import { useEffect } from "react"
 import { ClientOnly } from "../../components/ClientOnly"
 import { Actions } from "../../configFlow/components"
 import { flowSteps } from "../../configFlow/flowSteps"
-import { useFormManager } from "../../lib/useFormManager"
-import { createUseStep } from "../../lib/useStep"
+import { createFlowStepsHelpers, createUseWizzardryManager } from "../../lib/useWizzardryManager"
 
-export const useStep = createUseStep(flowSteps)
+export const flowStepsHelpers = createFlowStepsHelpers(flowSteps)
+const { getStepWithName, steps } = flowStepsHelpers
+export const useWizzardryManager = createUseWizzardryManager(flowStepsHelpers)
 
+const getStepInUrl = (path: string) => {
+  const [, step] = path.split("/").filter(Boolean)
+  return step
+}
 const WizzardryPage: NextPage = () => {
-  const stepInfos = useStep()
-  const { currentStep, previousStep, goNextStep, positionInFlow } = stepInfos
-  const formData = useFormManager((state) => state.formData)
+  const router = useRouter()
+  const formData = useWizzardryManager((state) => state.formData)
+  const currentStep = useWizzardryManager((state) => state.currentStep)
+  const visitedSteps = useWizzardryManager((state) => state.visitedSteps)
 
-  const stepLabel = currentStep?.label
-  const Component = currentStep?.component
+  const Component = getStepWithName(currentStep)?.component
+
+  // Sync the URL with the current step.
+  useEffect(() => {
+    const stepInUrl = getStepInUrl(router.asPath)
+    if (currentStep !== stepInUrl && steps.includes(stepInUrl)) {
+      router.push(currentStep, undefined, { shallow: true })
+    }
+  }, [router.asPath, currentStep, router])
 
   return (
     <ClientOnly>
       <h1>Wizzardry</h1>
 
-      {stepLabel && (
+      {currentStep && (
         <>
-          <Actions previous={previousStep} goNextStep={goNextStep} positionInFlow={positionInFlow} />
+          <Actions />
           <div style={{ minHeight: 300 }}>
-            <Component />
+            <>
+              <Component />
+            </>
           </div>
         </>
       )}
 
       <div style={{ display: "flex", justifyContent: "start", gap: 200 }}>
-        <pre style={{ minWidth: 300, color: "DeepPink" }}>
-          <p>
-            <strong>useStep</strong>
-          </p>
-          {JSON.stringify(stepInfos, null, 2)}
-        </pre>
         <pre style={{ minWidth: 300, color: "tomato" }}>
           <p>
             <strong>useFormManager</strong>
           </p>
-          {JSON.stringify(formData, null, 2)}
+          {JSON.stringify({ currentStep, visitedSteps, ...formData }, null, 2)}
         </pre>
         <pre style={{ color: "DarkOrange" }}>
           <p>
