@@ -83,10 +83,14 @@ export const createUseWizzardryManager = (helpers: ReturnType<typeof createFlowS
           }),
         goToNextStep: (flowState: FlowStateType) =>
           set((state) => {
+            const indexCurrentStep = state.visitedSteps.indexOf(state.currentStep)
+            const visitedNextStep = state.visitedSteps[indexCurrentStep + 1]
             state.currentStep = realNextStep(flowState, state.currentStep).label
-            // TODO: gérer tous les cas (si l'on a besoin de skipper des étapes, etc.)
-            if (!state.visitedSteps.includes(state.currentStep)) {
+            if (!visitedNextStep) {
               state.visitedSteps.push(state.currentStep)
+            } else if (visitedNextStep !== state.currentStep) {
+              // We cut an unreachable branch of the visited steps and add the new step.
+              state.visitedSteps = [...state.visitedSteps.slice(0, indexCurrentStep + 1), state.currentStep]
             }
           }),
         goToPreviousStep: () =>
@@ -107,7 +111,7 @@ export const createUseWizzardryManager = (helpers: ReturnType<typeof createFlowS
           }),
       })),
       {
-        name: "store-form7", // name of item in the storage (must be unique)
+        name: "store-form8", // name of item in the storage (must be unique)
         getStorage: () => sessionStorage, // formData are removed when user is disconnected
       },
     ),
