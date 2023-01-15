@@ -20,6 +20,7 @@ const WizzardryPage: NextPage = () => {
   const formData = useWizzardryManager((state) => state.formData)
   const currentStep = useWizzardryManager((state) => state.currentStep)
   const visitedSteps = useWizzardryManager((state) => state.visitedSteps)
+  const visitedFormData = useWizzardryManager((state) => state.visitedFormData)
 
   const Component = getStepWithName(currentStep)?.component
 
@@ -51,7 +52,7 @@ const WizzardryPage: NextPage = () => {
           <p>
             <strong>useFormManager</strong>
           </p>
-          {JSON.stringify({ currentStep, visitedSteps, ...formData }, null, 2)}
+          {JSON.stringify({ currentStep, visitedSteps, visitedFormData, ...formData }, null, 2)}
         </pre>
         <pre style={{ color: "DarkOrange" }}>
           <p>

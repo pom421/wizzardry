@@ -15,6 +15,7 @@ type StepState = {
   currentStep: string
   setCurrentStep: (step: string) => void
   visitedSteps: string[]
+  visitedFormData: Partials<FlowStateType>
   goToNextStep: (flowSteps: FlowStateType) => void
   goToPreviousStep: () => void
 }
@@ -73,8 +74,18 @@ export const createUseWizzardryManager = (helpers: ReturnType<typeof createFlowS
     persist(
       immer(
         devtools((set) => ({
+          formData: initialFlowStateData,
+          saveFormData: (data: Partial<FlowStateType>) =>
+            set((state) => {
+              state.formData = { ...state.formData, ...data }
+            }),
+          resetFormData: () =>
+            set((state) => {
+              state.formData = initialFlowStateData
+            }),
           currentStep: firstStep,
           visitedSteps: [firstStep],
+          visitedFormData: {},
           setCurrentStep: (step: string) =>
             set((state) => {
               if (state.visitedSteps.includes(step)) {
@@ -83,6 +94,7 @@ export const createUseWizzardryManager = (helpers: ReturnType<typeof createFlowS
                 console.error("Impossible d'aller à l'étape step, car elle n'a pas été visitée.")
               }
             }),
+          // Using the flow state, we can determine the next step. If the next step is not in the visited steps, we add it.
           goToNextStep: (flowState: FlowStateType) =>
             set((state) => {
               const indexCurrentStep = state.visitedSteps.indexOf(state.currentStep)
@@ -94,6 +106,11 @@ export const createUseWizzardryManager = (helpers: ReturnType<typeof createFlowS
                 // We cut an unreachable branch of the visited steps and add the new step.
                 state.visitedSteps = [...state.visitedSteps.slice(0, indexCurrentStep + 1), state.currentStep]
               }
+
+              state.visitedFormData = state.visitedSteps.reduce(
+                (acc, step) => ({ ...acc, [step]: state.formData[step] }),
+                {},
+              )
             }),
           goToPreviousStep: () =>
             set((state) => {
@@ -102,19 +119,10 @@ export const createUseWizzardryManager = (helpers: ReturnType<typeof createFlowS
                   ? state.visitedSteps[state.visitedSteps.indexOf(state.currentStep) - 1]
                   : firstStep
             }),
-          formData: initialFlowStateData,
-          saveFormData: (data: Partial<FlowStateType>) =>
-            set((state) => {
-              state.formData = { ...state.formData, ...data }
-            }),
-          resetFormData: () =>
-            set((state) => {
-              state.formData = initialFlowStateData
-            }),
         })),
       ),
       {
-        name: "store-form8", // name of item in the storage (must be unique)
+        name: "store-form11", // name of item in the storage (must be unique)
         getStorage: () => sessionStorage, // formData are removed when user is disconnected
       },
     ),
