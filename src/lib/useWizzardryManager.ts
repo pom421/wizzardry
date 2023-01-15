@@ -3,6 +3,7 @@ import { persist } from "zustand/middleware"
 import { immer } from "zustand/middleware/immer"
 import { FlowStateType, initialFlowStateData } from "../configFlow/flowState"
 import { UserFlow } from "./wizzardry"
+import { devtools } from "zustand/middleware"
 
 type FormState = {
   formData: FlowStateType
@@ -70,46 +71,48 @@ export const createUseWizzardryManager = (helpers: ReturnType<typeof createFlowS
 
   return create<FormState & StepState>()(
     persist(
-      immer((set) => ({
-        currentStep: firstStep,
-        visitedSteps: [firstStep],
-        setCurrentStep: (step: string) =>
-          set((state) => {
-            if (state.visitedSteps.includes(step)) {
-              state.currentStep = step
-            } else {
-              console.error("Impossible d'aller à l'étape step, car elle n'a pas été visitée.")
-            }
-          }),
-        goToNextStep: (flowState: FlowStateType) =>
-          set((state) => {
-            const indexCurrentStep = state.visitedSteps.indexOf(state.currentStep)
-            const visitedNextStep = state.visitedSteps[indexCurrentStep + 1]
-            state.currentStep = realNextStep(flowState, state.currentStep).label
-            if (!visitedNextStep) {
-              state.visitedSteps.push(state.currentStep)
-            } else if (visitedNextStep !== state.currentStep) {
-              // We cut an unreachable branch of the visited steps and add the new step.
-              state.visitedSteps = [...state.visitedSteps.slice(0, indexCurrentStep + 1), state.currentStep]
-            }
-          }),
-        goToPreviousStep: () =>
-          set((state) => {
-            state.currentStep =
-              state.visitedSteps.indexOf(state.currentStep) > 0
-                ? state.visitedSteps[state.visitedSteps.indexOf(state.currentStep) - 1]
-                : firstStep
-          }),
-        formData: initialFlowStateData,
-        saveFormData: (data: Partial<FlowStateType>) =>
-          set((state) => {
-            state.formData = { ...state.formData, ...data }
-          }),
-        resetFormData: () =>
-          set((state) => {
-            state.formData = initialFlowStateData
-          }),
-      })),
+      immer(
+        devtools((set) => ({
+          currentStep: firstStep,
+          visitedSteps: [firstStep],
+          setCurrentStep: (step: string) =>
+            set((state) => {
+              if (state.visitedSteps.includes(step)) {
+                state.currentStep = step
+              } else {
+                console.error("Impossible d'aller à l'étape step, car elle n'a pas été visitée.")
+              }
+            }),
+          goToNextStep: (flowState: FlowStateType) =>
+            set((state) => {
+              const indexCurrentStep = state.visitedSteps.indexOf(state.currentStep)
+              const visitedNextStep = state.visitedSteps[indexCurrentStep + 1]
+              state.currentStep = realNextStep(flowState, state.currentStep).label
+              if (!visitedNextStep) {
+                state.visitedSteps.push(state.currentStep)
+              } else if (visitedNextStep !== state.currentStep) {
+                // We cut an unreachable branch of the visited steps and add the new step.
+                state.visitedSteps = [...state.visitedSteps.slice(0, indexCurrentStep + 1), state.currentStep]
+              }
+            }),
+          goToPreviousStep: () =>
+            set((state) => {
+              state.currentStep =
+                state.visitedSteps.indexOf(state.currentStep) > 0
+                  ? state.visitedSteps[state.visitedSteps.indexOf(state.currentStep) - 1]
+                  : firstStep
+            }),
+          formData: initialFlowStateData,
+          saveFormData: (data: Partial<FlowStateType>) =>
+            set((state) => {
+              state.formData = { ...state.formData, ...data }
+            }),
+          resetFormData: () =>
+            set((state) => {
+              state.formData = initialFlowStateData
+            }),
+        })),
+      ),
       {
         name: "store-form8", // name of item in the storage (must be unique)
         getStorage: () => sessionStorage, // formData are removed when user is disconnected

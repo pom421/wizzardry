@@ -5,6 +5,7 @@ import { ClientOnly } from "../../components/ClientOnly"
 import { Actions } from "../../configFlow/components"
 import { flowSteps } from "../../configFlow/flowSteps"
 import { createFlowStepsHelpers, createUseWizzardryManager } from "../../lib/useWizzardryManager"
+import { mountStoreDevtool } from "simple-zustand-devtools"
 
 export const flowStepsHelpers = createFlowStepsHelpers(flowSteps)
 const { getStepWithName } = flowStepsHelpers
@@ -66,3 +67,7 @@ const WizzardryPage: NextPage = () => {
 }
 
 export default WizzardryPage
+
+if (process.env.NODE_ENV === "development") {
+  mountStoreDevtool("useWizzardryManager", useWizzardryManager)
+}
