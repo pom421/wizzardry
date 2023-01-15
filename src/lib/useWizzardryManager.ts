@@ -15,7 +15,7 @@ type StepState = {
   currentStep: string
   setCurrentStep: (step: string) => void
   visitedSteps: string[]
-  visitedFormData: Partials<FlowStateType>
+  visitedFormData: Partial<FlowStateType>
   goToNextStep: (flowSteps: FlowStateType) => void
   goToPreviousStep: () => void
 }
