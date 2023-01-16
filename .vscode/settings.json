@@ -1,16 +1,15 @@
 {
-  // TSC to use in VSCode.
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.preferences.importModuleSpecifier": "project-relative",
   "editor.codeActionsOnSave": {
-    // "source.organizeImports": true,
+    "source.organizeImports": true,
     "source.fixAll.eslint": true
   },
-  "[typescript][javascript]": {
+  "[javascript][typescript]": {
     "editor.defaultFormatter": "dbaeumer.vscode-eslint"
   },
   // For JSONC, like this file, we want to format on save.
-  "[jsonc]": {
+  "[jsonc][html][css]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
