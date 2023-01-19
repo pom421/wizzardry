@@ -1,8 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { AlertInput } from "../../components/AlertInput"
 import { useWizzardryManager } from "../../pages/wizzardry/[[...step]].page"
+import { AlertInput } from "../components/AlertInput"
 
 export const workerStepSchema = z.object({
   name: z.string().min(1),

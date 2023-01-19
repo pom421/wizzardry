@@ -1,11 +1,11 @@
 import { z } from "zod"
-import { firstStepSchema, recruiterStepSchema, workerStepSchema } from "./components"
+import { homeStepSchema, recruiterStepSchema, workerStepSchema } from "../steps"
 
 export const flowStateSchema = z.object({
-  "first-step": firstStepSchema,
+  "home-step": homeStepSchema,
   "recruiter-step": recruiterStepSchema,
   "worker-step": workerStepSchema,
-  "last-step": z.object({
+  "confirmation-step": z.object({
     message: z.string(),
   }),
 })
@@ -13,7 +13,7 @@ export const flowStateSchema = z.object({
 export type FlowStateType = z.infer<typeof flowStateSchema>
 
 export const initialFlowStateData: FlowStateType = {
-  "first-step": {
+  "home-step": {
     category: "",
   },
   "recruiter-step": {
@@ -24,7 +24,7 @@ export const initialFlowStateData: FlowStateType = {
     name: "",
     favoriteSkill: "",
   },
-  "last-step": {
+  "confirmation-step": {
     message: "",
   },
 }

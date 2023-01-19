@@ -1,8 +1,15 @@
 import create from "zustand"
 import { devtools, persist } from "zustand/middleware"
 import { immer } from "zustand/middleware/immer"
-import { FlowStateType, initialFlowStateData } from "../configFlow/flowState"
-import { UserFlow } from "./wizzardry"
+import { FlowStateType, initialFlowStateData } from "../app/wizzardry/flowState"
+
+export type Step<FormData> = {
+  label: string // The URL to set in the browser
+  next?: (state: FormData) => string
+  component: () => JSX.Element
+}
+
+export type UserFlow<FormData extends Record<string, Record<string, any>>> = Step<FormData>[]
 
 type FormState = {
   formData: FlowStateType
@@ -125,7 +132,7 @@ export const createUseWizzardryManager = (helpers: ReturnType<typeof createFlowS
         })),
       ),
       {
-        name: "store-form11", // name of item in the storage (must be unique)
+        name: "store-form12", // name of item in the storage (must be unique)
         getStorage: () => sessionStorage, // formData are removed when user is disconnected
       },
     ),

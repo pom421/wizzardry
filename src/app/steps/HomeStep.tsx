@@ -1,32 +1,32 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { AlertInput } from "../../components/AlertInput"
 import { useWizzardryManager } from "../../pages/wizzardry/[[...step]].page"
+import { AlertInput } from "../components/AlertInput"
 
-export const firstStepSchema = z.object({
+export const homeStepSchema = z.object({
   category: z.union([z.literal("recruiter"), z.literal("worker"), z.literal("")]),
 })
 
-type FirstStepType = z.infer<typeof firstStepSchema>
+type HomeStepType = z.infer<typeof homeStepSchema>
 
-export const FirstStep = () => {
+export const HomeStep = () => {
   const formData = useWizzardryManager((state) => state.formData)
   const saveFormData = useWizzardryManager((state) => state.saveFormData)
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting, isValid },
-  } = useForm<FirstStepType>({
+  } = useForm<HomeStepType>({
     mode: "onChange",
-    resolver: zodResolver(firstStepSchema),
+    resolver: zodResolver(homeStepSchema),
     defaultValues: {
-      category: formData["first-step"].category || "",
+      category: formData["home-step"].category || "",
     },
   })
 
-  const onSubmit = (data: FirstStepType) => {
-    saveFormData({ "first-step": { category: data.category } })
+  const onSubmit = (data: HomeStepType) => {
+    saveFormData({ "home-step": { category: data.category } })
   }
 
   return (
