@@ -4,8 +4,4 @@ export type Step<FormData> = {
   component: () => JSX.Element
 }
 
-export type UserFlow<FormData extends Record<string, Record<string, any>>> = {
-  initial: string
-  final: string
-  steps: Step<FormData>[]
-}
+export type UserFlow<FormData extends Record<string, Record<string, any>>> = Step<FormData>[]

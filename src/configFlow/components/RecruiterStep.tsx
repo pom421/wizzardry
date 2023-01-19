@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { AlertInput } from "../../../archives/components/AlertInput"
+import { AlertInput } from "../../components/AlertInput"
 import { useWizzardryManager } from "../../pages/wizzardry/[[...step]].page"
 
 export const recruiterStepSchema = z.object({

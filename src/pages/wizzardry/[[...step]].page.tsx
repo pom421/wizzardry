@@ -1,11 +1,12 @@
 import { NextPage } from "next"
 import { useRouter } from "next/router"
 import { useEffect } from "react"
+import { mountStoreDevtool } from "simple-zustand-devtools"
 import { ClientOnly } from "../../components/ClientOnly"
 import { Actions } from "../../configFlow/components"
 import { flowSteps } from "../../configFlow/flowSteps"
+import { WizzardryDebug } from "../../lib/components/WizzardryDebug"
 import { createFlowStepsHelpers, createUseWizzardryManager } from "../../lib/useWizzardryManager"
-import { mountStoreDevtool } from "simple-zustand-devtools"
 
 export const flowStepsHelpers = createFlowStepsHelpers(flowSteps)
 const { getStepWithName } = flowStepsHelpers
@@ -17,10 +18,8 @@ const getStepInUrl = (path: string) => {
 }
 const WizzardryPage: NextPage = () => {
   const router = useRouter()
-  const formData = useWizzardryManager((state) => state.formData)
   const currentStep = useWizzardryManager((state) => state.currentStep)
   const visitedSteps = useWizzardryManager((state) => state.visitedSteps)
-  const visitedFormData = useWizzardryManager((state) => state.visitedFormData)
 
   const Component = getStepWithName(currentStep)?.component
 
@@ -47,21 +46,7 @@ const WizzardryPage: NextPage = () => {
         </>
       )}
 
-      <div style={{ display: "flex", justifyContent: "start", gap: 200 }}>
-        <pre style={{ minWidth: 300, color: "tomato" }}>
-          <p>
-            <strong>useFormManager</strong>
-          </p>
-          {JSON.stringify({ currentStep, visitedSteps, visitedFormData, ...formData }, null, 2)}
-        </pre>
-        <pre style={{ color: "DarkOrange" }}>
-          <p>
-            <strong>flowSteps</strong>
-          </p>
-          {JSON.stringify(flowSteps, null, 2)}
-        </pre>
-      </div>
-
+      <WizzardryDebug wizzardryManager={useWizzardryManager} flowSteps={flowSteps} />
       <hr />
     </ClientOnly>
   )

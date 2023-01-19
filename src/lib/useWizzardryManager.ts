@@ -1,9 +1,8 @@
 import create from "zustand"
-import { persist } from "zustand/middleware"
+import { devtools, persist } from "zustand/middleware"
 import { immer } from "zustand/middleware/immer"
 import { FlowStateType, initialFlowStateData } from "../configFlow/flowState"
 import { UserFlow } from "./wizzardry"
-import { devtools } from "zustand/middleware"
 
 type FormState = {
   formData: FlowStateType
@@ -16,18 +15,20 @@ type StepState = {
   setCurrentStep: (step: string) => void
   visitedSteps: string[]
   visitedFormData: Partial<FlowStateType>
+  isFirstStep: () => boolean
+  isFinalStep: () => boolean
   goToNextStep: (flowSteps: FlowStateType) => void
   goToPreviousStep: () => void
 }
 
 // Some helpers on flowSteps.
 export const createFlowStepsHelpers = (flowSteps: UserFlow<FlowStateType>) => {
-  const steps = flowSteps.steps.map((step) => step.label)
-  const numberOfSteps = flowSteps.steps.length
-  const getStepIndexOf = (label: string) => flowSteps.steps.findIndex((step) => step.label === label)
-  const firstStep = flowSteps.initial
-  const finalStep = flowSteps.final
-  const getStepWithName = (label: string) => flowSteps.steps.find((step) => step.label === label)
+  const steps = flowSteps.map((step) => step.label)
+  const numberOfSteps = flowSteps.length
+  const getStepIndexOf = (label: string) => flowSteps.findIndex((step) => step.label === label)
+  const firstStep = flowSteps[0].label
+  const finalStep = flowSteps[flowSteps.length - 1].label
+  const getStepWithName = (label: string) => flowSteps.find((step) => step.label === label)
   /** Natural next step of the current step, assuming there is no next function */
   const naturalNextStep = (label: string) =>
     getStepWithName(getStepIndexOf(label) < numberOfSteps - 1 ? steps[getStepIndexOf(label) + 1] : finalStep)
@@ -73,7 +74,7 @@ export const createUseWizzardryManager = (helpers: ReturnType<typeof createFlowS
   return create<FormState & StepState>()(
     persist(
       immer(
-        devtools((set) => ({
+        devtools((set, get) => ({
           formData: initialFlowStateData,
           saveFormData: (data: Partial<FlowStateType>) =>
             set((state) => {
@@ -94,6 +95,8 @@ export const createUseWizzardryManager = (helpers: ReturnType<typeof createFlowS
                 console.error("Impossible d'aller à l'étape step, car elle n'a pas été visitée.")
               }
             }),
+          isFirstStep: () => get().currentStep === firstStep,
+          isFinalStep: () => get().currentStep === finalStep,
           // Using the flow state, we can determine the next step. If the next step is not in the visited steps, we add it.
           goToNextStep: (flowState: FlowStateType) =>
             set((state) => {

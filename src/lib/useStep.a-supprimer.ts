@@ -15,12 +15,12 @@ export const createUseStep = (flowSteps: UserFlow<FlowStateType>) => {
   // Some helpers on flowSteps.
   const normalizeStep = (query: string | string[]) =>
     Array.isArray(query) ? (query.length > 0 ? query[0] : "") : query
-  const steps = flowSteps.steps.map((step) => step.label)
-  const numberOfSteps = flowSteps.steps.length
-  const firstStep = flowSteps.initial
-  const finalStep = flowSteps.final
-  const getStepIndexOf = (label: string) => flowSteps.steps.findIndex((step) => step.label === label)
-  const getStepWithName = (label: string) => flowSteps.steps.find((step) => step.label === label)
+  const steps = flowSteps.map((step) => step.label)
+  const numberOfSteps = flowSteps.length
+  const firstStep = flowSteps[0].label
+  const finalStep = flowSteps[flowSteps.length - 1].label
+  const getStepIndexOf = (label: string) => flowSteps.findIndex((step) => step.label === label)
+  const getStepWithName = (label: string) => flowSteps.find((step) => step.label === label)
   /** Natural next step of the current step, assuming there is no next function */
   const naturalNextStep = (label: string) =>
     getStepWithName(getStepIndexOf(label) < numberOfSteps - 1 ? steps[getStepIndexOf(label) + 1] : finalStep)
@@ -71,9 +71,9 @@ export const createUseStep = (flowSteps: UserFlow<FlowStateType>) => {
 
       /** Get if we are in first or last position, for UI needs */
       get positionInFlow() {
-        return this.currentStep.label === flowSteps.initial
+        return this.currentStep.label === flowSteps[0]
           ? ("first" as const)
-          : this.currentStep.label === flowSteps.final
+          : this.currentStep.label === flowSteps[flowSteps.length - 1]
           ? "final"
           : "middle"
       },
