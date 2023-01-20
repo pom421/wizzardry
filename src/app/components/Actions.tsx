@@ -6,6 +6,7 @@ export const Actions = () => {
   const goToPreviousStep = useWizzardryManager((state) => state.goToPreviousStep)
   const isFirstStep = useWizzardryManager((state) => state.isFirstStep)
   const isFinalStep = useWizzardryManager((state) => state.isFinalStep)
+  const resetFormData = useWizzardryManager((state) => state.resetFormData)
 
   return (
     <>
@@ -15,6 +16,7 @@ export const Actions = () => {
       <button disabled={isFinalStep()} onClick={() => goToNextStep(formData)}>
         Next
       </button>
+      <button onClick={() => resetFormData()}>Reset</button>
     </>
   )
 }
