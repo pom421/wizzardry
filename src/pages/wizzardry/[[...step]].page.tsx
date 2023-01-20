@@ -4,13 +4,14 @@ import { useEffect } from "react"
 import { mountStoreDevtool } from "simple-zustand-devtools"
 import { ClientOnly } from "../../app/components/ClientOnly"
 import { Actions } from "../../app/steps"
+import { initialFlowStateData } from "../../app/wizzardry/flowState"
 import { flowSteps } from "../../app/wizzardry/flowSteps"
 import { WizzardryDebug } from "../../lib/components/WizzardryDebug"
 import { createFlowStepsHelpers, createUseWizzardryManager } from "../../lib/useWizzardryManager"
 
 export const flowStepsHelpers = createFlowStepsHelpers(flowSteps)
 const { getStepWithName } = flowStepsHelpers
-export const useWizzardryManager = createUseWizzardryManager(flowStepsHelpers)
+export const useWizzardryManager = createUseWizzardryManager(flowStepsHelpers, initialFlowStateData)
 
 const getStepInUrl = (path: string) => {
   const [, step] = path.split("/").filter(Boolean)

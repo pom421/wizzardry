@@ -2,7 +2,7 @@ import dynamic from "next/dynamic"
 import { ReactJsonViewProps } from "react-json-view"
 import { ClientOnly } from "../../app/components/ClientOnly"
 import { FlowStateType } from "../../app/wizzardry/flowState"
-import { createUseWizzardryManager, UserFlow } from "../useWizzardryManager"
+import { createUseWizzardryManager, WizzardrySteps } from "../useWizzardryManager"
 
 const DynamicReactJson = dynamic(import("react-json-view"), { ssr: false })
 
@@ -12,7 +12,7 @@ const Json = (props: ReactJsonViewProps) => {
 
 type Props = {
   wizzardryManager: ReturnType<typeof createUseWizzardryManager>
-  flowSteps: UserFlow<FlowStateType>
+  flowSteps: WizzardrySteps<FlowStateType>
 }
 
 export const WizzardryDebug = ({ wizzardryManager, flowSteps }: Props) => {
@@ -53,7 +53,7 @@ export const WizzardryDebug = ({ wizzardryManager, flowSteps }: Props) => {
             <strong>flowSteps</strong>
           </p>
 
-          <Json src={flowSteps.map((step) => ({ label: step.label, ...(step.next && { redirection: "true" }) }))} />
+          <Json src={flowSteps.map((step) => ({ label: step.label, ...(step.next && { nextRedirection: "true" }) }))} />
         </div>
       </div>
     </ClientOnly>
