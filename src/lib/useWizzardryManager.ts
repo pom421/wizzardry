@@ -104,9 +104,9 @@ export const createUseWizzardryManager = (
       immer(
         devtools((set, get) => ({
           formData: initialFlowStateData,
-          saveFormData: (data: WizzardryFormData) =>
+          saveFormData: (formData: WizzardryFormData) =>
             set((state) => {
-              state.formData = { ...state.formData, ...data }
+              state.formData = { ...state.formData, ...formData }
             }),
           resetFormData: () =>
             set((state) => {
