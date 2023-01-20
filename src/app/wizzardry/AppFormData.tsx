@@ -2,7 +2,7 @@ import { z } from "zod"
 import { WizzardryFormData } from "../../lib/useWizzardryManager"
 import { homeStepSchema, recruiterStepSchema, workerStepSchema } from "../steps"
 
-export const flowStateSchema = z.object({
+export const appFormDataSchema = z.object({
   "home-step": homeStepSchema,
   "recruiter-step": recruiterStepSchema,
   "worker-step": workerStepSchema,
@@ -11,9 +11,9 @@ export const flowStateSchema = z.object({
   }),
 })
 
-export type FlowStateType = z.infer<typeof flowStateSchema>
+export type AppFormData = z.infer<typeof appFormDataSchema>
 
-export const initialFlowStateData: WizzardryFormData = {
+export const initialAppFormData: WizzardryFormData = {
   "home-step": {
     category: "",
   },
@@ -28,4 +28,4 @@ export const initialFlowStateData: WizzardryFormData = {
   "confirmation-step": {
     message: "",
   },
-} satisfies FlowStateType
+} satisfies AppFormData

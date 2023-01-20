@@ -2,7 +2,6 @@ import assert from "assert"
 import create from "zustand"
 import { devtools, persist } from "zustand/middleware"
 import { immer } from "zustand/middleware/immer"
-// import { FlowStateType, initialFlowStateData } from "../app/wizzardry/flowState"
 
 export type WizzardryFormData = Record<string, Record<string, any>>
 
@@ -89,24 +88,16 @@ export const createUseWizzardryManager = (
   initialFlowStateData: WizzardryFormData,
 ) => {
   const {
-    normalizeStep,
-    steps,
-    numberOfSteps,
+    // normalizeStep,
+    // steps,
+    // numberOfSteps,
     firstStep,
     finalStep,
-    getStepIndexOf,
-    getStepWithName,
-    naturalNextStep,
+    // getStepIndexOf,
+    // getStepWithName,
+    // naturalNextStep,
     realNextStep,
   } = helpers
-
-  const xx = {
-    name: "toto",
-  }
-
-  const yy = {
-    name: undefined,
-  }
 
   return create<WizzardryFormManager & WizzardryStepper>()(
     persist(

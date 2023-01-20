@@ -4,14 +4,14 @@ import { useEffect } from "react"
 import { mountStoreDevtool } from "simple-zustand-devtools"
 import { ClientOnly } from "../../app/components/ClientOnly"
 import { Actions } from "../../app/steps"
-import { initialFlowStateData } from "../../app/wizzardry/flowState"
-import { flowSteps } from "../../app/wizzardry/flowSteps"
+import { initialAppFormData } from "../../app/wizzardry/AppFormData"
+import { flowSteps } from "../../app/wizzardry/AppSteps"
 import { WizzardryDebug } from "../../lib/components/WizzardryDebug"
 import { createFlowStepsHelpers, createUseWizzardryManager } from "../../lib/useWizzardryManager"
 
 export const flowStepsHelpers = createFlowStepsHelpers(flowSteps)
 const { getStepWithName } = flowStepsHelpers
-export const useWizzardryManager = createUseWizzardryManager(flowStepsHelpers, initialFlowStateData)
+export const useWizzardryManager = createUseWizzardryManager(flowStepsHelpers, initialAppFormData)
 
 const getStepInUrl = (path: string) => {
   const [, step] = path.split("/").filter(Boolean)
@@ -27,7 +27,7 @@ const WizzardryPage: NextPage = () => {
   // Sync the URL with the current step.
   useEffect(() => {
     const stepInUrl = getStepInUrl(router.asPath)
-    if (currentStep !== stepInUrl && !visitedSteps.includes(stepInUrl)) {
+    if (stepInUrl && currentStep !== stepInUrl && !visitedSteps.includes(stepInUrl)) {
       router.push(currentStep, undefined, { shallow: true })
     }
   }, [router.asPath, currentStep, router, visitedSteps])
