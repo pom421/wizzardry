@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic"
 import { ReactJsonViewProps } from "react-json-view"
 import { ClientOnly } from "../../app/components/ClientOnly"
-import { createUseWizzardryManager, WizzardryStep } from "../useWizzardryManager"
+import { createUseWizzardryManager, WizzardryFormData, WizzardryStep } from "../useWizzardryManager"
 
 const DynamicReactJson = dynamic(import("react-json-view"), { ssr: false })
 
@@ -9,12 +9,12 @@ const Json = (props: ReactJsonViewProps) => {
   return <DynamicReactJson displayDataTypes={false} enableClipboard={false} {...props} />
 }
 
-type Props = {
+type Props<FormData extends WizzardryFormData> = {
   wizzardryManager: ReturnType<typeof createUseWizzardryManager>
-  flowSteps: WizzardryStep[]
+  appSteps: WizzardryStep<FormData>[]
 }
 
-export const WizzardryDebug = ({ wizzardryManager, flowSteps }: Props) => {
+export const WizzardryDebug = <FormData extends WizzardryFormData>({ wizzardryManager, appSteps }: Props<FormData>) => {
   const wizzardryState = wizzardryManager()
 
   const { currentStep, visitedSteps, visitedFormData, formData, isFirstStep, isFinalStep } = wizzardryState
@@ -49,10 +49,10 @@ export const WizzardryDebug = ({ wizzardryManager, flowSteps }: Props) => {
         </div>
         <div style={{ color: "DarkOrange" }}>
           <p>
-            <strong>flowSteps</strong>
+            <strong>appSteps</strong>
           </p>
 
-          <Json src={flowSteps.map((step) => ({ label: step.label, ...(step.next && { nextRedirection: "true" }) }))} />
+          <Json src={appSteps.map((step) => ({ label: step.label, ...(step.next && { nextRedirection: "true" }) }))} />
         </div>
       </div>
     </ClientOnly>

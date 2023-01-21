@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useWizzardryManager } from "../../pages/wizzardry/[[...step]].page"
 import { AlertInput } from "../components/AlertInput"
-import { AppFormData } from "../wizzardry/AppFormData"
+import { AppFormData } from "../wizzardry/appFormData"
 
 export const homeStepSchema = z.object({
   category: z.union([z.literal("recruiter"), z.literal("worker"), z.literal("")]),

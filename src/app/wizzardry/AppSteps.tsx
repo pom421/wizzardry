@@ -1,8 +1,8 @@
 import { WizzardryStep } from "../../lib/useWizzardryManager"
 import { ConfirmationStep, HomeStep, RecruiterStep, WorkerStep } from "../steps"
+import { AppFormData } from "./appFormData"
 
-// TODO - the labels of steps must match the keys of the state
-export const flowSteps: WizzardryStep[] = [
+export const appSteps: WizzardryStep<AppFormData>[] = [
   {
     label: "home-step",
     next: (state) => (state["home-step"].category === "recruiter" ? "recruiter-step" : "worker-step"),

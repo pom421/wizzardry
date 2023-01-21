@@ -4,12 +4,12 @@ import { useEffect } from "react"
 import { mountStoreDevtool } from "simple-zustand-devtools"
 import { ClientOnly } from "../../app/components/ClientOnly"
 import { Actions } from "../../app/steps"
-import { initialAppFormData } from "../../app/wizzardry/AppFormData"
-import { flowSteps } from "../../app/wizzardry/AppSteps"
+import { initialAppFormData } from "../../app/wizzardry/appFormData"
+import { appSteps } from "../../app/wizzardry/appSteps"
 import { WizzardryDebug } from "../../lib/components/WizzardryDebug"
 import { createFlowStepsHelpers, createUseWizzardryManager } from "../../lib/useWizzardryManager"
 
-export const flowStepsHelpers = createFlowStepsHelpers(flowSteps)
+export const flowStepsHelpers = createFlowStepsHelpers(appSteps)
 const { getStepWithName } = flowStepsHelpers
 export const useWizzardryManager = createUseWizzardryManager(flowStepsHelpers, initialAppFormData)
 
@@ -47,7 +47,7 @@ const WizzardryPage: NextPage = () => {
         </>
       )}
 
-      <WizzardryDebug wizzardryManager={useWizzardryManager} flowSteps={flowSteps} />
+      <WizzardryDebug wizzardryManager={useWizzardryManager} flowSteps={appSteps} />
       <hr />
     </ClientOnly>
   )

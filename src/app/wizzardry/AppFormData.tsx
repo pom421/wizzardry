@@ -13,7 +13,7 @@ export const appFormDataSchema = z.object({
 
 export type AppFormData = z.infer<typeof appFormDataSchema>
 
-export const initialAppFormData: WizzardryFormData = {
+export const initialAppFormData = {
   "home-step": {
     category: "",
   },
@@ -28,4 +28,4 @@ export const initialAppFormData: WizzardryFormData = {
   "confirmation-step": {
     message: "",
   },
-} satisfies AppFormData
+} satisfies WizzardryFormData

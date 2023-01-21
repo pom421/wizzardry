@@ -1,62 +1,60 @@
 import assert from "assert"
+import { Draft } from "immer"
 import create from "zustand"
 import { devtools, persist } from "zustand/middleware"
 import { immer } from "zustand/middleware/immer"
 
-export type WizzardryFormData = Record<string, Record<string, any>>
+export type WizzardryFormData = Record<string, Record<string, any> | never>
 
-export type WizzardryStep = {
-  label: string // The URL to set in the browser
-  next?: (state: WizzardryFormData) => string
+export type WizzardryStep<FormData extends WizzardryFormData> = {
+  label: keyof FormData // The URL to set in the browser
+  next?: (state: FormData) => string
   component: () => JSX.Element
 }
 
-type WizzardryFormManager = {
-  formData: WizzardryFormData
-  resetFormData: () => void
-  saveFormData: (formData: WizzardryFormData) => void
-}
-
-type WizzardryStepper = {
+type WizzardryManager<FormData extends WizzardryFormData> = {
+  formData: FormData
   currentStep: string
   visitedSteps: string[]
-  visitedFormData: WizzardryFormData
+  visitedFormData: FormData
+  resetFormData: () => void
+  saveFormData: (formData: Partial<FormData>) => void
   setCurrentStep: (step: string) => void
   isFirstStep: () => boolean
   isFinalStep: () => boolean
-  goToNextStep: (formData: WizzardryFormData) => void
+  goToNextStep: (formData: FormData) => void
   goToPreviousStep: () => void
 }
 
-// Some helpers on flowSteps.
-export const createFlowStepsHelpers = (flowSteps: WizzardryStep[]) => {
-  if (flowSteps.length === 0) throw new Error("flowSteps must have at least one step.")
-  assert(typeof flowSteps[0] !== "undefined", "flowSteps must have at least one step.")
-  const lastStep = flowSteps[flowSteps.length - 1] // TS needs to extract this as an identifier.
-  assert(typeof lastStep !== "undefined", "flowSteps must have at least one step.")
+// Some helpers on appSteps.
+export const createFlowStepsHelpers = <FormData extends WizzardryFormData>(appSteps: WizzardryStep<FormData>[]) => {
+  if (appSteps.length === 0) throw new Error("appSteps must have at least one step.")
+  assert(typeof appSteps[0] !== "undefined", "appSteps must have at least one step.")
+  const lastStep = appSteps[appSteps.length - 1] // TS needs to extract this as an identifier.
+  assert(typeof lastStep !== "undefined", "appSteps must have at least one step.")
 
-  const steps = flowSteps.map((step) => step.label)
-  const numberOfSteps = flowSteps.length
+  const steps = appSteps.map((step) => step.label)
+  const numberOfSteps = appSteps.length
   /**
    * Return index of the step with the given label.
    *
    * Throw an error if the step does not exist.
    */
   const getStepIndexOf = (label: string) => {
-    const index = flowSteps.findIndex((step) => step.label === label)
+    const index = appSteps.findIndex((step) => step.label === label)
     assert(index !== -1, "The step " + label + " does not exist.")
     return index
   }
 
-  const firstStep = flowSteps[0].label
+  const firstStep = appSteps[0].label
   const finalStep = lastStep.label
   const getStepWithName = (label: string) => {
-    const step = flowSteps.find((step) => step.label === label)
+    const step = appSteps.find((step) => step.label === label)
     assert(step, "The step " + label + " does not exist.")
     return step
   }
   /** Natural next step of the current step, assuming there is no next function */
-  const naturalNextStep = (label: string) => (label !== finalStep ? flowSteps[getStepIndexOf(label) + 1] : undefined)
+  const naturalNextStep = (label: string) => (label !== finalStep ? appSteps[getStepIndexOf(label) + 1] : undefined)
 
   return {
     normalizeStep: (query: string | string[]) => (Array.isArray(query) ? (query.length > 0 ? query[0] : "") : query),
@@ -68,9 +66,9 @@ export const createFlowStepsHelpers = (flowSteps: WizzardryStep[]) => {
     getStepWithName,
     naturalNextStep,
     /** Real next step of the current step, using next function if any */
-    realNextStep(flowState: WizzardryFormData, label: string) {
+    realNextStep(appFormData: FormData, label: string) {
       const currentStep = getStepWithName(label)
-      return currentStep.next ? getStepWithName(currentStep.next(flowState)) : naturalNextStep(label)
+      return currentStep.next ? getStepWithName(currentStep.next(appFormData)) : naturalNextStep(label)
     },
   }
 }
@@ -83,9 +81,9 @@ export const createFlowStepsHelpers = (flowSteps: WizzardryStep[]) => {
  * const { formData, saveFormData, resetFormData, currentStep, setCurrentStep } = useFormManager();
  * ```
  */
-export const createUseWizzardryManager = (
+export const createUseWizzardryManager = <FormData extends WizzardryFormData>(
   helpers: ReturnType<typeof createFlowStepsHelpers>,
-  initialFlowStateData: WizzardryFormData,
+  initialFlowStateData: FormData,
 ) => {
   const {
     // normalizeStep,
@@ -99,25 +97,25 @@ export const createUseWizzardryManager = (
     realNextStep,
   } = helpers
 
-  return create<WizzardryFormManager & WizzardryStepper>()(
+  return create<WizzardryManager<FormData>>()(
     persist(
       immer(
         devtools((set, get) => ({
           formData: initialFlowStateData,
-          saveFormData: (formData: WizzardryFormData) =>
+          saveFormData: (formData: Partial<FormData>) =>
             set((state) => {
               state.formData = { ...state.formData, ...formData }
             }),
           resetFormData: () =>
             set((state) => {
-              state.formData = initialFlowStateData
+              state.formData = initialFlowStateData as Draft<FormData>
               state.currentStep = firstStep
               state.visitedSteps = [firstStep]
-              state.visitedFormData = {}
+              state.visitedFormData = {} as Draft<FormData>
             }),
           currentStep: firstStep,
           visitedSteps: [firstStep],
-          visitedFormData: {},
+          visitedFormData: {} as FormData,
           setCurrentStep: (step: string) =>
             set((state) => {
               if (state.visitedSteps.includes(step)) {
@@ -129,7 +127,7 @@ export const createUseWizzardryManager = (
           isFirstStep: () => get().currentStep === firstStep,
           isFinalStep: () => get().currentStep === finalStep,
           // Using the flow state, we can determine the next step. If the next step is not in the visited steps, we add it.
-          goToNextStep: (formData: WizzardryFormData) =>
+          goToNextStep: (formData: FormData) =>
             set((state) => {
               const indexCurrentStep = state.visitedSteps.indexOf(state.currentStep)
               const visitedNextStep = state.visitedSteps[indexCurrentStep + 1]
@@ -143,7 +141,7 @@ export const createUseWizzardryManager = (
 
               state.visitedFormData = state.visitedSteps.reduce(
                 (acc, step) => ({ ...acc, [step]: state.formData[step] }),
-                {},
+                {} as Draft<FormData>,
               )
             }),
           goToPreviousStep: () =>
