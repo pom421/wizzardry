@@ -1,5 +1,4 @@
 import { z } from "zod"
-import { WizzardryFormData } from "../../lib/useWizzardryManager"
 import { homeStepSchema, recruiterStepSchema, workerStepSchema } from "../steps"
 
 export const appFormDataSchema = z.object({
@@ -13,7 +12,7 @@ export const appFormDataSchema = z.object({
 
 export type AppFormData = z.infer<typeof appFormDataSchema>
 
-export const initialAppFormData = {
+export const initialAppFormData: AppFormData = {
   "home-step": {
     category: "",
   },
@@ -28,4 +27,4 @@ export const initialAppFormData = {
   "confirmation-step": {
     message: "",
   },
-} satisfies WizzardryFormData
+} as const
