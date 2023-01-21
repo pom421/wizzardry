@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic"
 import { ReactJsonViewProps } from "react-json-view"
 import { ClientOnly } from "../../app/components/ClientOnly"
-import { createUseWizzardryManager, WizzardryFormData, WizzardryStep } from "../useWizzardryManager"
+import { WizzardryFormData, WizzardryStep } from "../useWizzardryManager"
 
 const DynamicReactJson = dynamic(import("react-json-view"), { ssr: false })
 
@@ -9,15 +9,23 @@ const Json = (props: ReactJsonViewProps) => {
   return <DynamicReactJson displayDataTypes={false} enableClipboard={false} {...props} />
 }
 
+// Ad hoc type, because wizzardryManager: ReturnType<typeof createUseWizzardryManager<FormData>> doesn't work.
+type WizzardyManagerType<FormData> = {
+  currentStep: Extract<keyof FormData, string>
+  visitedSteps: Array<Extract<keyof FormData, string>>
+  visitedFormData: Partial<FormData>
+  formData: Partial<FormData>
+  isFirstStep: () => boolean
+  isFinalStep: () => boolean
+}
+
 type Props<FormData extends WizzardryFormData> = {
-  wizzardryManager: ReturnType<typeof createUseWizzardryManager>
+  wizzardryManager: () => WizzardyManagerType<FormData>
   appSteps: WizzardryStep<FormData>[]
 }
 
 export const WizzardryDebug = <FormData extends WizzardryFormData>({ wizzardryManager, appSteps }: Props<FormData>) => {
-  const wizzardryState = wizzardryManager()
-
-  const { currentStep, visitedSteps, visitedFormData, formData, isFirstStep, isFinalStep } = wizzardryState
+  const { currentStep, visitedSteps, visitedFormData, formData, isFirstStep, isFinalStep } = wizzardryManager()
 
   return (
     <ClientOnly>

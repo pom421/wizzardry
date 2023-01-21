@@ -7,19 +7,19 @@ import { immer } from "zustand/middleware/immer"
 export type WizzardryFormData = Record<string, Record<string, any> | never>
 
 export type WizzardryStep<FormData extends WizzardryFormData> = {
-  label: keyof FormData // The URL to set in the browser
-  next?: (state: FormData) => string
+  label: Extract<keyof FormData, string> // The URL to set in the browser
+  next?: (state: FormData) => Extract<keyof FormData, string>
   component: () => JSX.Element
 }
 
 type WizzardryManager<FormData extends WizzardryFormData> = {
   formData: FormData
-  currentStep: string
-  visitedSteps: string[]
+  currentStep: Extract<keyof FormData, string>
+  visitedSteps: Array<Extract<keyof FormData, string>>
   visitedFormData: FormData
   resetFormData: () => void
   saveFormData: (formData: Partial<FormData>) => void
-  setCurrentStep: (step: string) => void
+  setCurrentStep: (step: Extract<keyof FormData, string>) => void
   isFirstStep: () => boolean
   isFinalStep: () => boolean
   goToNextStep: (formData: FormData) => void
@@ -48,7 +48,7 @@ export const createFlowStepsHelpers = <FormData extends WizzardryFormData>(appSt
 
   const firstStep = appSteps[0].label
   const finalStep = lastStep.label
-  const getStepWithName = (label: string) => {
+  const getStepWithName = <K extends Extract<keyof FormData, string>>(label: K) => {
     const step = appSteps.find((step) => step.label === label)
     assert(step, "The step " + label + " does not exist.")
     return step
@@ -66,7 +66,7 @@ export const createFlowStepsHelpers = <FormData extends WizzardryFormData>(appSt
     getStepWithName,
     naturalNextStep,
     /** Real next step of the current step, using next function if any */
-    realNextStep(appFormData: FormData, label: string) {
+    realNextStep<K extends Extract<keyof FormData, string>>(appFormData: FormData, label: K) {
       const currentStep = getStepWithName(label)
       return currentStep.next ? getStepWithName(currentStep.next(appFormData)) : naturalNextStep(label)
     },
@@ -82,7 +82,7 @@ export const createFlowStepsHelpers = <FormData extends WizzardryFormData>(appSt
  * ```
  */
 export const createUseWizzardryManager = <FormData extends WizzardryFormData>(
-  helpers: ReturnType<typeof createFlowStepsHelpers>,
+  helpers: ReturnType<typeof createFlowStepsHelpers<FormData>>,
   initialFlowStateData: FormData,
 ) => {
   const {
@@ -109,17 +109,17 @@ export const createUseWizzardryManager = <FormData extends WizzardryFormData>(
           resetFormData: () =>
             set((state) => {
               state.formData = initialFlowStateData as Draft<FormData>
-              state.currentStep = firstStep
-              state.visitedSteps = [firstStep]
+              state.currentStep = firstStep as Draft<Extract<keyof FormData, string>>
+              state.visitedSteps = [firstStep] as Draft<Extract<keyof FormData, string>>[]
               state.visitedFormData = {} as Draft<FormData>
             }),
           currentStep: firstStep,
-          visitedSteps: [firstStep],
+          visitedSteps: [firstStep] as unknown as Extract<keyof FormData, string>[],
           visitedFormData: {} as FormData,
-          setCurrentStep: (step: string) =>
+          setCurrentStep: (step: Extract<keyof FormData, string>) =>
             set((state) => {
-              if (state.visitedSteps.includes(step)) {
-                state.currentStep = step
+              if (state.visitedSteps.includes(step as Draft<Extract<keyof FormData, string>>)) {
+                state.currentStep = step as Draft<Extract<keyof FormData, string>>
               } else {
                 console.error("Impossible d'aller à l'étape step, car elle n'a pas été visitée.")
               }
@@ -131,7 +131,10 @@ export const createUseWizzardryManager = <FormData extends WizzardryFormData>(
             set((state) => {
               const indexCurrentStep = state.visitedSteps.indexOf(state.currentStep)
               const visitedNextStep = state.visitedSteps[indexCurrentStep + 1]
-              state.currentStep = realNextStep(formData, state.currentStep)?.label || state.currentStep
+              state.currentStep =
+                (realNextStep(formData, state.currentStep as Extract<keyof FormData, string>)?.label as Draft<
+                  Extract<keyof FormData, string>
+                >) || state.currentStep
               if (!visitedNextStep) {
                 state.visitedSteps.push(state.currentStep)
               } else if (visitedNextStep !== state.currentStep) {
@@ -148,8 +151,10 @@ export const createUseWizzardryManager = <FormData extends WizzardryFormData>(
             set((state) => {
               state.currentStep =
                 state.visitedSteps.indexOf(state.currentStep) > 0
-                  ? (state.visitedSteps[state.visitedSteps.indexOf(state.currentStep) - 1] as string)
-                  : firstStep
+                  ? (state.visitedSteps[state.visitedSteps.indexOf(state.currentStep) - 1] as Draft<
+                      Extract<keyof FormData, string>
+                    >)
+                  : (firstStep as Draft<Extract<keyof FormData, string>>)
             }),
         })),
       ),

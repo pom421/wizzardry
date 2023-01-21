@@ -13,7 +13,7 @@ export class AssertionError extends Error {
  * @param condition Something to evaluate as true to pass the assertion. If it is false, an AssertionError is thrown.
  * @param msg The message to display in the error.
  */
-export const assert = (condition: any, msg?: string): asserts condition => {
+export function assert(condition: any, msg?: string): asserts condition {
   if (!condition) {
     throw new AssertionError(msg)
   }
