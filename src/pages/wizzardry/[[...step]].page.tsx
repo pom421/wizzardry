@@ -7,24 +7,17 @@ import { Actions } from "../../app/steps"
 import { initialAppFormData } from "../../app/wizzardry/appFormData"
 import { appSteps } from "../../app/wizzardry/appSteps"
 import { WizzardryDebug } from "../../lib/components/WizzardryDebug"
-import { createFlowStepsHelpers, createUseWizzardryManager, WizzardryFormData } from "../../lib/useWizzardryManager"
+import { createFlowStepsHelpers, createUseWizzardryManager } from "../../lib/useWizzardryManager"
 
-export const flowStepsHelpers = createFlowStepsHelpers(appSteps)
-const { getStepWithName } = flowStepsHelpers
+export const flowStepsHelpers = createFlowStepsHelpers(appSteps, initialAppFormData)
+const { getStepWithName, getStepInUrl } = flowStepsHelpers
 export const useWizzardryManager = createUseWizzardryManager(flowStepsHelpers, initialAppFormData)
 
-const getStepInUrl = <FormData extends WizzardryFormData, K extends keyof FormData>(
-  path: string,
-  appFormData: FormData,
-): K | undefined => {
-  const [, step] = path.split("/").filter(Boolean)
-
-  console.log("step", step)
-
-  if (step && step in appFormData) {
-    return step as K
-  }
-}
+// const WizzardryPageNew: NextPage = new WizzardryPage({
+//   appSteps,
+//   initialAppFormData,
+//   name: "choix-contact",
+// })
 
 const WizzardryPage: NextPage = () => {
   const router = useRouter()
@@ -35,7 +28,7 @@ const WizzardryPage: NextPage = () => {
 
   // Sync the URL with the current step.
   useEffect(() => {
-    const stepInUrl = getStepInUrl(router.asPath, initialAppFormData)
+    const stepInUrl = getStepInUrl(router.asPath)
     if (stepInUrl && currentStep !== stepInUrl && !visitedSteps.includes(stepInUrl)) {
       router.push(currentStep, undefined, { shallow: true })
     }

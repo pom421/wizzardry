@@ -27,7 +27,10 @@ type WizzardryManager<FormData extends WizzardryFormData> = {
 }
 
 // Some helpers on appSteps.
-export const createFlowStepsHelpers = <FormData extends WizzardryFormData>(appSteps: WizzardryStep<FormData>[]) => {
+export const createFlowStepsHelpers = <FormData extends WizzardryFormData>(
+  appSteps: WizzardryStep<FormData>[],
+  initialAppFormData: FormData,
+) => {
   if (appSteps.length === 0) throw new Error("appSteps must have at least one step.")
   assert(typeof appSteps[0] !== "undefined", "appSteps must have at least one step.")
   const lastStep = appSteps[appSteps.length - 1] // TS needs to extract this as an identifier.
@@ -56,6 +59,14 @@ export const createFlowStepsHelpers = <FormData extends WizzardryFormData>(appSt
   /** Natural next step of the current step, assuming there is no next function */
   const naturalNextStep = (label: string) => (label !== finalStep ? appSteps[getStepIndexOf(label) + 1] : undefined)
 
+  const getStepInUrl = (path: string): keyof typeof initialAppFormData | undefined => {
+    const [, step] = path.split("/").filter(Boolean)
+
+    if (step && step in initialAppFormData) {
+      return step
+    }
+  }
+
   return {
     normalizeStep: (query: string | string[]) => (Array.isArray(query) ? (query.length > 0 ? query[0] : "") : query),
     steps,
@@ -70,6 +81,7 @@ export const createFlowStepsHelpers = <FormData extends WizzardryFormData>(appSt
       const currentStep = getStepWithName(label)
       return currentStep.next ? getStepWithName(currentStep.next(appFormData)) : naturalNextStep(label)
     },
+    getStepInUrl,
   }
 }
 
