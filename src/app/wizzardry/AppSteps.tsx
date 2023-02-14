@@ -1,6 +1,6 @@
 import { WizzardryStep } from "../../lib/useWizzardryManager"
 import { ConfirmationStep, HomeStep, RecruiterStep, WorkerStep } from "../steps"
-import { AppFormData } from "./appFormData"
+import { AppFormData } from "./AppFormData"
 
 export const appSteps: WizzardryStep<AppFormData>[] = [
   {
