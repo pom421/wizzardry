@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useWizzardryManager } from "../../pages/wizzardry/[[...step]].page"
 import { AlertInput } from "../components/AlertInput"
-import { AppFormData, formDataSchema } from "../wizzardry/AppFormData2"
+import { AppFormData, formDataSchema } from "../wizzardry/AppFormData"
 
 const recruiterStepSchema = formDataSchema["recruiter-step"]
 
