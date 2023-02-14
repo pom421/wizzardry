@@ -3,11 +3,9 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useWizzardryManager } from "../../pages/wizzardry/[[...step]].page"
 import { AlertInput } from "../components/AlertInput"
-import { AppFormData } from "../wizzardry/appFormData"
+import { AppFormData, formDataSchema } from "../wizzardry/AppFormData2"
 
-export const homeStepSchema = z.object({
-  category: z.union([z.literal("recruiter"), z.literal("worker"), z.literal("")]),
-})
+const homeStepSchema = formDataSchema["home-step"]
 
 type HomeStepType = z.infer<typeof homeStepSchema>
 
