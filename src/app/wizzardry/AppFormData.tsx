@@ -1,6 +1,8 @@
 import { z } from "zod"
+import { buildSteps, Step } from "../../lib/stepper"
+import { ConfirmationStep, HomeStep, RecruiterStep, WorkerStep } from "../steps"
 
-export const formDataSchema = {
+export const formSchema = z.object({
   "home-step": z.object({
     category: z.union([z.literal("recruiter"), z.literal("worker"), z.literal("")]),
   }),
@@ -15,13 +17,9 @@ export const formDataSchema = {
   "confirmation-step": z.object({
     message: z.string(),
   }),
-}
+})
 
-const allSchemas = z.object(formDataSchema)
-
-export type AppFormData = z.infer<typeof allSchemas>
-
-export const initialAppFormData: AppFormData = {
+export const initial = {
   "home-step": {
     category: "",
   },
@@ -37,3 +35,26 @@ export const initialAppFormData: AppFormData = {
     message: "",
   },
 } as const
+
+export const steps: Step<z.infer<unknown>>[] = [
+  {
+    label: "home-step",
+    next: (state) => (state["home-step"].category === "recruiter" ? "recruiter-step" : "worker-step"),
+    component: HomeStep,
+  },
+  {
+    label: "recruiter-step",
+    next: () => "confirmation-step",
+    component: RecruiterStep,
+  },
+  {
+    label: "worker-step",
+    component: WorkerStep,
+  },
+  { label: "confirmation-step", component: ConfirmationStep },
+] as const
+
+buildSteps(formSchema)({
+  initial,
+  steps,
+})
