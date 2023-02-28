@@ -25,20 +25,21 @@ export class Stepper<T extends z.Schema> {
   steps: Step<z.infer<T>>[] = []
   private _currentStep?: ZodKey<T>
   private _visitedSteps: ZodKey<T>[] = []
-  private data: z.infer<T> = {}
+  data: z.infer<T> = {}
   private visitedData: z.infer<T> = {}
 
   constructor(schema: T) {
     this.schema = schema
   }
 
-  // set initial(initial: z.infer<T>) {
-  //   this._initial = initial
-  // }
+  configure({ initial, steps }: { initial: z.infer<T>; steps: Step<z.infer<T>>[] }) {
+    this.initial = initial
+    this.steps = steps
 
-  // set steps(steps: Step<z.infer<T>>[]) {
-  //   this._steps = steps
-  // }
+    this._currentStep = steps[0]?.label
+
+    return this
+  }
 
   get nbSteps() {
     return this.steps.length
@@ -83,7 +84,6 @@ export class Stepper<T extends z.Schema> {
   getStep(label: ZodKey<T>) {
     const step = this.steps.find((step) => step.label === label)
     assert(step, "The step " + label.toString() + " does not exist.")
-    this._currentStep = "toto"
     return step
   }
 

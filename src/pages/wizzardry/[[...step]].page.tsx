@@ -1,38 +1,61 @@
 import { NextPage } from "next"
 import { useRouter } from "next/router"
-import { useEffect } from "react"
-import { mountStoreDevtool } from "simple-zustand-devtools"
 import { ClientOnly } from "../../app/components/ClientOnly"
-import { Actions } from "../../app/steps"
-import { initialAppFormData } from "../../app/wizzardry/appFormData"
-import { appSteps } from "../../app/wizzardry/appSteps"
-import { WizzardryDebug } from "../../lib/components/WizzardryDebug"
-import { createFlowStepsHelpers, createUseWizzardryManager } from "../../lib/useWizzardryManager"
+import { Actions, ConfirmationStep, HomeStep, RecruiterStep, WorkerStep } from "../../app/steps"
+import { formSchema } from "../../app/wizzardry/AppFormData"
+import { Stepper } from "../../lib/stepper"
+import { StepperContext } from "../../lib/utils/StepperContext"
 
-export const flowStepsHelpers = createFlowStepsHelpers(appSteps, initialAppFormData)
-const { getStepWithName, getStepInUrl } = flowStepsHelpers
-export const useWizzardryManager = createUseWizzardryManager(flowStepsHelpers, initialAppFormData)
-
-// const WizzardryPageNew: NextPage = new WizzardryPage({
-//   appSteps,
-//   initialAppFormData,
-//   name: "choix-contact",
-// })
+const stepper = new Stepper(formSchema).configure({
+  initial: {
+    "home-step": {
+      category: "",
+    },
+    "recruiter-step": {
+      company: "",
+      searchedSkill: "",
+    },
+    "worker-step": {
+      name: "",
+      favoriteSkill: "",
+    },
+    "confirmation-step": {
+      message: "",
+    },
+  },
+  steps: [
+    {
+      label: "home-step",
+      next: (state) => (state["home-step"].category === "recruiter" ? "recruiter-step" : "worker-step"),
+      component: HomeStep,
+    },
+    {
+      label: "recruiter-step",
+      next: () => "confirmation-step",
+      component: RecruiterStep,
+    },
+    {
+      label: "worker-step",
+      component: WorkerStep,
+    },
+    { label: "confirmation-step", component: ConfirmationStep },
+  ],
+})
 
 const WizzardryPage: NextPage = () => {
   const router = useRouter()
-  const currentStep = useWizzardryManager((state) => state.currentStep)
-  const visitedSteps = useWizzardryManager((state) => state.visitedSteps)
+  const currentStep = stepper.currentStep
+  const visitedSteps = stepper.visitedSteps
 
-  const Component = getStepWithName(currentStep)?.component
+  const Component = stepper.getStep(currentStep).component
 
-  // Sync the URL with the current step.
-  useEffect(() => {
-    const stepInUrl = getStepInUrl(router.asPath)
-    if (stepInUrl && currentStep !== stepInUrl && !visitedSteps.includes(stepInUrl)) {
-      router.push(currentStep, undefined, { shallow: true })
-    }
-  }, [router.asPath, currentStep, router, visitedSteps])
+  // // Sync the URL with the current step.
+  // useEffect(() => {
+  //   const stepInUrl = getStepInUrl(router.asPath)
+  //   if (stepInUrl && currentStep !== stepInUrl && !visitedSteps.includes(stepInUrl)) {
+  //     router.push(currentStep, undefined, { shallow: true })
+  //   }
+  // }, [router.asPath, currentStep, router, visitedSteps])
 
   return (
     <ClientOnly>
@@ -40,16 +63,18 @@ const WizzardryPage: NextPage = () => {
 
       {currentStep && (
         <>
-          <Actions />
-          <div style={{ minHeight: 300 }}>
-            <>
-              <Component />
-            </>
-          </div>
+          <StepperContext stepper={stepper}>
+            <Actions />
+            <div style={{ minHeight: 300 }}>
+              <>
+                <Component />
+              </>
+            </div>
+          </StepperContext>
         </>
       )}
 
-      <WizzardryDebug wizzardryManager={useWizzardryManager} appSteps={appSteps} />
+      {/* <WizzardryDebug wizzardryManager={useWizzardryManager} appSteps={appSteps} /> */}
       <hr />
     </ClientOnly>
   )
@@ -57,6 +82,6 @@ const WizzardryPage: NextPage = () => {
 
 export default WizzardryPage
 
-if (process.env.NODE_ENV === "development") {
-  mountStoreDevtool("useWizzardryManager", useWizzardryManager)
-}
+// if (process.env.NODE_ENV === "development") {
+//   mountStoreDevtool("useWizzardryManager", useWizzardryManager)
+// }

@@ -11,3 +11,6 @@ Features :
 - let you design freely the state of your form. Zod schema is supported to not repeat yourself with types
 - let you write your own flow. By default, go through form1 to form2, with conditional redirect to any form according to your busineess rules
 - test
+
+## Usage
+

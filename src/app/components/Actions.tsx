@@ -1,22 +1,17 @@
-import { useWizzardryManager } from "../../pages/wizzardry/[[...step]].page"
+import { useStepperContext } from "../../lib/utils/StepperContext"
 
 export const Actions = () => {
-  const formData = useWizzardryManager((state) => state.formData)
-  const goToNextStep = useWizzardryManager((state) => state.goToNextStep)
-  const goToPreviousStep = useWizzardryManager((state) => state.goToPreviousStep)
-  const isFirstStep = useWizzardryManager((state) => state.isFirstStep)
-  const isFinalStep = useWizzardryManager((state) => state.isFinalStep)
-  const resetFormData = useWizzardryManager((state) => state.resetFormData)
+  const stepper = useStepperContext()
 
   return (
     <>
-      <button disabled={isFirstStep()} onClick={() => goToPreviousStep()}>
+      <button disabled={stepper.isFirstStep} onClick={stepper.previous}>
         Previous
       </button>
-      <button disabled={isFinalStep()} onClick={() => goToNextStep(formData)}>
+      <button disabled={stepper.isFinalStep} onClick={stepper.next}>
         Next
       </button>
-      <button onClick={() => resetFormData()}>Reset</button>
+      <button onClick={() => stepper.resetFormData()}>Reset</button>
     </>
   )
 }

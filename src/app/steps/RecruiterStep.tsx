@@ -3,9 +3,9 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useWizzardryManager } from "../../pages/wizzardry/[[...step]].page"
 import { AlertInput } from "../components/AlertInput"
-import { AppFormData, formDataSchema } from "../wizzardry/AppFormData"
+import { AppFormData, formSchema } from "../wizzardry/AppFormData"
 
-const recruiterStepSchema = formDataSchema["recruiter-step"]
+const recruiterStepSchema = formSchema["recruiter-step"]
 
 type RecruiterStepType = z.infer<typeof recruiterStepSchema>
 
