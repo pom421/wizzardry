@@ -3,6 +3,7 @@ import { useRouter } from "next/router"
 import { ClientOnly } from "../../app/components/ClientOnly"
 import { Actions, ConfirmationStep, HomeStep, RecruiterStep, WorkerStep } from "../../app/steps"
 import { formSchema } from "../../app/wizzardry/AppFormData"
+import { WizzardryDebug } from "../../lib/components/WizzardryDebug"
 import { Stepper } from "../../lib/stepper"
 import { StepperContext } from "../../lib/utils/StepperContext"
 
@@ -70,11 +71,11 @@ const WizzardryPage: NextPage = () => {
                 <Component />
               </>
             </div>
+            <WizzardryDebug />
           </StepperContext>
         </>
       )}
 
-      {/* <WizzardryDebug wizzardryManager={useWizzardryManager} appSteps={appSteps} /> */}
       <hr />
     </ClientOnly>
   )

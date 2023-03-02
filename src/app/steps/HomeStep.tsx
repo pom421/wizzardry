@@ -26,10 +26,10 @@ export const HomeStep = () => {
     },
   })
 
-  const onSubmit = (data: Schema) => {
-    console.log("dans submit", data)
+  // TODO: pouvoir aller sur la page 2, en simplement cliquant sur suivant (et en enregistrant les données de la pag 1)
 
-    stepper.saveStep("home-step", { category: data["home-step"].category })
+  const onSubmit = (data: Schema) => {
+    stepper.saveStep("home-step", data["home-step"])
 
     console.log("data", JSON.stringify(data, null, 2))
   }

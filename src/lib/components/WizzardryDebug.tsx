@@ -1,7 +1,8 @@
 import dynamic from "next/dynamic"
 import { ReactJsonViewProps } from "react-json-view"
 import { ClientOnly } from "../../app/components/ClientOnly"
-import { WizzardryFormData, WizzardryStep } from "../useWizzardryManager"
+import { formSchema } from "../../app/wizzardry/AppFormData"
+import { useStepperContext } from "../utils/StepperContext"
 
 const DynamicReactJson = dynamic(import("react-json-view"), { ssr: false })
 
@@ -9,23 +10,10 @@ const Json = (props: ReactJsonViewProps) => {
   return <DynamicReactJson displayDataTypes={false} enableClipboard={false} {...props} />
 }
 
-// Ad hoc type, because wizzardryManager: ReturnType<typeof createUseWizzardryManager<FormData>> doesn't work.
-type WizzardyManagerType<FormData> = {
-  currentStep: Extract<keyof FormData, string>
-  visitedSteps: Array<Extract<keyof FormData, string>>
-  visitedFormData: Partial<FormData>
-  formData: Partial<FormData>
-  isFirstStep: () => boolean
-  isFinalStep: () => boolean
-}
+export const WizzardryDebug = () => {
+  const stepper = useStepperContext<typeof formSchema>()
 
-type Props<FormData extends WizzardryFormData> = {
-  wizzardryManager: () => WizzardyManagerType<FormData>
-  appSteps: WizzardryStep<FormData>[]
-}
-
-export const WizzardryDebug = <FormData extends WizzardryFormData>({ wizzardryManager, appSteps }: Props<FormData>) => {
-  const { currentStep, visitedSteps, visitedFormData, formData, isFirstStep, isFinalStep } = wizzardryManager()
+  console.log("dans debug", stepper.currentStep)
 
   return (
     <ClientOnly>
@@ -36,10 +24,10 @@ export const WizzardryDebug = <FormData extends WizzardryFormData>({ wizzardryMa
           </p>
           <Json
             src={{
-              currentStep,
-              isFirstStep: isFirstStep(),
-              isFinalStep: isFinalStep(),
-              visitedSteps,
+              currentStep: stepper.currentStep,
+              isFirstStep: stepper.isFirstStep,
+              isFinalStep: stepper.isFinalStep,
+              visitedSteps: stepper.visitedSteps,
             }}
           />
         </div>
@@ -50,18 +38,18 @@ export const WizzardryDebug = <FormData extends WizzardryFormData>({ wizzardryMa
 
           <Json
             src={{
-              visitedFormData,
-              ...formData,
+              visitedFormData: stepper.visitedData,
+              data: stepper.data,
             }}
           />
         </div>
-        <div style={{ color: "DarkOrange" }}>
+        {/* <div style={{ color: "DarkOrange" }}>
           <p>
             <strong>appSteps</strong>
           </p>
 
           <Json src={appSteps.map((step) => ({ label: step.label, ...(step.next && { nextRedirection: "true" }) }))} />
-        </div>
+        </div> */}
       </div>
     </ClientOnly>
   )

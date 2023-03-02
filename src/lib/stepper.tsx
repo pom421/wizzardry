@@ -23,10 +23,11 @@ export class Stepper<T extends z.Schema> {
   private schema: z.Schema
   initial: z.infer<T> = {}
   steps: Step<z.infer<T>>[] = []
+
   private _currentStep?: ZodKey<T>
   private _visitedSteps: ZodKey<T>[] = []
   data: z.infer<T> = {}
-  private visitedData: z.infer<T> = {}
+  visitedData: z.infer<T> = {}
 
   constructor(schema: T) {
     this.schema = schema
@@ -99,7 +100,11 @@ export class Stepper<T extends z.Schema> {
   next() {
     assert(this.currentStep, "The current step is not defined.")
 
+    console.log("dans next")
+
     this._currentStep = this.realNextStep(this.currentStep)?.label
+
+    console.log("current step", this._currentStep)
 
     const indexCurrentStep = this.indexOfStep(this.currentStep as ZodKey<T>)
     const visitedNextStep = this.visitedSteps[indexCurrentStep + 1] // To check if we have already visited the next step.

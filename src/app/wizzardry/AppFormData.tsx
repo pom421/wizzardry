@@ -19,6 +19,8 @@ export const formSchema = z.object({
   }),
 })
 
+formSchema
+
 export const initial = {
   "home-step": {
     category: "",
