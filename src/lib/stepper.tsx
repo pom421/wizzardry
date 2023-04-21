@@ -88,11 +88,11 @@ export class Stepper<T extends z.Schema> {
     return step
   }
 
-  naturalNextStep(label: ZodKey<T>) {
+  private naturalNextStep(label: ZodKey<T>) {
     return label !== this.finalStep ? this.steps[this.indexOfStep(label) + 1] : undefined
   }
 
-  realNextStep(currentStep: ZodKey<T>) {
+  private realNextStep(currentStep: ZodKey<T>) {
     const step = this.getStep(currentStep)
     return step.next ? this.getStep(step.next(this.data)) : this.naturalNextStep(currentStep)
   }
