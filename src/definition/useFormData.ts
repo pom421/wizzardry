@@ -1,4 +1,4 @@
-import { create } from "zustand"
+import { createStore, useStore } from "zustand"
 import { createJSONStorage, persist } from "zustand/middleware"
 import { Definition } from "./schema"
 
@@ -32,7 +32,7 @@ const defaultValues: Definition = {
  * const { formData, saveFormData, resetFormData } = useFormData();
  * ```
  */
-export const useFormData = create<Actions & { formData: Definition }>()(
+export const vanillaStoreFormData = createStore<Actions & { formData: Definition }>()(
   persist(
     (set, get) => ({
       formData: defaultValues,
@@ -48,3 +48,6 @@ export const useFormData = create<Actions & { formData: Definition }>()(
     },
   ),
 )
+
+export const useFormData = (selector: (state: Actions & { formData: Definition }) => unknown) =>
+  useStore(vanillaStoreFormData, selector)
