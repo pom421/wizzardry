@@ -1,9 +1,11 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
+import assert from "assert"
 import { z } from "zod"
 import { create } from "zustand"
 import { createJSONStorage, persist } from "zustand/middleware"
 import { immer } from "zustand/middleware/immer"
 import { Definition, definition } from "./schema"
+import { vanillaStoreFormData } from "./useFormData"
 
 type Meta = {
   [key in keyof Definition]: {
@@ -14,12 +16,20 @@ type Meta = {
   visitedSteps: (keyof Definition)[]
 }
 
+// type ZodKey<T extends z.AnyZodObject> = keyof z.infer<T>
+
 type Actions = {
   resetFormMeta: () => void
   confirm: (step: keyof Definition) => void
   unconfirm: (step: keyof Definition) => void
   next: () => void
   previous: () => void
+  _nbSteps: () => number
+  _firstStep: () => keyof Definition
+  _finalStep: () => keyof Definition
+  _indexOfStep: (label: keyof Definition) => number
+  _getStep: (label: keyof Definition) => Step<Definition>
+  _naturalNextStep: (label: keyof Definition) => keyof Definition | undefined
 }
 
 const defaultValues: Meta = {
@@ -39,11 +49,11 @@ const defaultValues: Meta = {
   visitedSteps: [],
 }
 
-export type Step<FormData> = {
-  label: keyof FormData
+export type Step<Definition> = {
+  label: keyof Definition
   title: string
   route: string
-  next?: (state: FormData) => keyof FormData
+  next?: (state: Definition) => keyof Definition
   confirm: () => void
   unconfirm: () => void
 }
@@ -53,20 +63,6 @@ export const buildSteps = <T extends z.Schema>(schema: T) => {
   return ({ steps }: { steps: Step<z.infer<T>>[] }) => ({
     steps,
   })
-}
-
-function getStepFromLabel(label: string) {
-  let res: { step: Step; index: number }
-
-  for (let i = 0; i < steps.length; i++) {
-    if (steps[i].label === label) {
-      res = {
-        step: steps[i],
-        index: i,
-      }
-      break
-    }
-  }
 }
 
 export const { steps } = buildSteps(definition)({
@@ -104,6 +100,8 @@ export const { steps } = buildSteps(definition)({
   ],
 })
 
+const { getState } = vanillaStoreFormData
+
 /**
  * Hook to get and handle the state of the form.
  *
@@ -116,10 +114,41 @@ export const useFormMeta = create<Actions & { formMeta: Meta }>()(
   persist(
     immer((set, get) => ({
       formMeta: defaultValues,
+      _nbSteps: () => steps.length,
+      _firstStep: () => {
+        assert(steps[0], "The stepper must have at least one step.")
+
+        return steps[0].label
+      },
+      _finalStep: () => {
+        const last = steps[steps.length - 1] // Needed for TS.
+        assert(last, "The stepper must have at least one step.")
+
+        return last.label
+      },
       resetFormMeta: () =>
         set({
           formMeta: defaultValues,
         }),
+      _indexOfStep: (label: keyof Definition) => {
+        const index = steps.findIndex((step) => step.label === label)
+        assert(index !== -1, "The step " + label.toString() + " does not exist.")
+
+        return index
+      },
+      _getStep: (label: keyof Definition) => {
+        const step = steps.find((step) => step.label === label)
+        assert(step, "The step " + label.toString() + " does not exist.")
+
+        return step
+      },
+      _naturalNextStep: (label: keyof Definition) => {
+        const nextStep = steps[get()._indexOfStep(label) + 1]
+
+        assert(label !== get()._finalStep() && nextStep !== undefined, "For everty step but the last, we can go ahead")
+
+        return label !== get()._finalStep() ? nextStep.label : undefined
+      },
       confirm: (step: keyof Definition) => {
         const { formMeta } = get()
         set({
@@ -146,20 +175,42 @@ export const useFormMeta = create<Actions & { formMeta: Meta }>()(
       },
       next: () => {
         const { formMeta } = get()
+
+        const current = get()._getStep(formMeta.currentStep)
+
+        if (current.next) {
+          const nextStep = current.next(getState().formData)
+
+          set({
+            formMeta: {
+              ...formMeta,
+              currentStep: nextStep,
+              visitedSteps: [...formMeta.visitedSteps, formMeta.currentStep],
+            },
+          })
+
+          return
+        }
+
+        const nextStep = get()._naturalNextStep(formMeta.currentStep)
+
         set({
           formMeta: {
             ...formMeta,
-            currentStep: formMeta.currentStep === "confirmation-step" ? "confirmation-step" : "worker-step",
+            currentStep: nextStep || get()._firstStep(),
             visitedSteps: [...formMeta.visitedSteps, formMeta.currentStep],
           },
         })
       },
       previous: () => {
         const { formMeta } = get()
+
+        const currentStep = formMeta.visitedSteps[formMeta.visitedSteps.length - 1] || get().formMeta.currentStep
+
         set({
           formMeta: {
             ...formMeta,
-            currentStep: formMeta.visitedSteps[formMeta.visitedSteps.length - 1],
+            currentStep,
             visitedSteps: formMeta.visitedSteps.slice(0, formMeta.visitedSteps.length - 1),
           },
         })
