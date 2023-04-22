@@ -12,5 +12,11 @@ Features :
 - let you write your own flow. By default, go through form1 to form2, with conditional redirect to any form according to your busineess rules
 - test
 
-## Usage
+## Ce qui est important
+
+- schema zod pour contrôle unitaire
+- organisation des data: par page, pour faciliter le debug à minima
+- typages: DRY
+- conserver l'historique pour pouvoir aller sur la page précédente
+- chaque page a son propre schéma et a accès en lecture aux data des pages précédentes, pas des pages futures
 
