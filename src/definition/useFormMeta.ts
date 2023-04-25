@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 import assert from "assert"
 import { z } from "zod"
-import { create } from "zustand"
+import { createStore, useStore } from "zustand"
 import { createJSONStorage, persist } from "zustand/middleware"
 import { immer } from "zustand/middleware/immer"
 import { Definition, definition } from "./schema"
@@ -32,7 +32,7 @@ type Actions = {
   _naturalNextStep: (label: keyof Definition) => keyof Definition | undefined
 }
 
-const defaultValues: Meta = {
+export const defaultValues: Meta = {
   "home-step": {
     status: "unconfirmed",
   },
@@ -110,7 +110,7 @@ const { getState } = vanillaStoreFormData
  * const { formMeta, saveFormMeta, resetFormMeta } = useFormMeta();
  * ```
  */
-export const useFormMeta = create<Actions & { formMeta: Meta }>()(
+export const vanillaStoreFormMeta = createStore<Actions & { formMeta: Meta }>()(
   persist(
     immer((set, get) => ({
       formMeta: defaultValues,
@@ -149,72 +149,36 @@ export const useFormMeta = create<Actions & { formMeta: Meta }>()(
 
         return label !== get()._finalStep() ? nextStep.label : undefined
       },
-      confirm: (step: keyof Definition) => {
-        const { formMeta } = get()
-        set({
-          formMeta: {
-            ...formMeta,
-            [step]: {
-              ...formMeta[step],
-              status: "confirmed",
-            },
-          },
-        })
-      },
-      unconfirm: (step: keyof Definition) => {
-        const { formMeta } = get()
-        set({
-          formMeta: {
-            ...formMeta,
-            [step]: {
-              ...formMeta[step],
-              status: "unconfirmed",
-            },
-          },
-        })
-      },
-      next: () => {
-        const { formMeta } = get()
+      confirm: (step: keyof Definition) =>
+        set((state) => {
+          state.formMeta[step].status = "confirmed"
+        }),
 
-        const current = get()._getStep(formMeta.currentStep)
+      unconfirm: (step: keyof Definition) =>
+        set((state) => {
+          state.formMeta[step].status = "unconfirmed"
+        }),
 
-        if (current.next) {
-          const nextStep = current.next(getState().formData)
+      next: () =>
+        set((state) => {
+          const current = state._getStep(state.formMeta.currentStep)
 
-          set({
-            formMeta: {
-              ...formMeta,
-              currentStep: nextStep,
-              visitedSteps: [...formMeta.visitedSteps, formMeta.currentStep],
-            },
-          })
+          const nextStep = current.next
+            ? current.next(getState().formData)
+            : state._naturalNextStep(state.formMeta.currentStep)
 
-          return
-        }
+          state.formMeta.currentStep = nextStep || state._firstStep()
+          state.formMeta.visitedSteps.push(state.formMeta.currentStep)
+        }),
 
-        const nextStep = get()._naturalNextStep(formMeta.currentStep)
+      previous: () =>
+        set((state) => {
+          const indexOfCurrentStep = state.formMeta.visitedSteps.findIndex(
+            (step) => step === state.formMeta.currentStep,
+          )
 
-        set({
-          formMeta: {
-            ...formMeta,
-            currentStep: nextStep || get()._firstStep(),
-            visitedSteps: [...formMeta.visitedSteps, formMeta.currentStep],
-          },
-        })
-      },
-      previous: () => {
-        const { formMeta } = get()
-
-        const currentStep = formMeta.visitedSteps[formMeta.visitedSteps.length - 1] || get().formMeta.currentStep
-
-        set({
-          formMeta: {
-            ...formMeta,
-            currentStep,
-            visitedSteps: formMeta.visitedSteps.slice(0, formMeta.visitedSteps.length - 1),
-          },
-        })
-      },
+          state.formMeta.currentStep = state.formMeta.visitedSteps[indexOfCurrentStep - 1] || state.formMeta.currentStep
+        }),
     })),
     {
       name: "wizzardry-form-meta",
@@ -222,3 +186,6 @@ export const useFormMeta = create<Actions & { formMeta: Meta }>()(
     },
   ),
 )
+
+export const useFormMeta = (selector: (state: Actions & { formMeta: Meta }) => unknown) =>
+  useStore(vanillaStoreFormMeta, selector)

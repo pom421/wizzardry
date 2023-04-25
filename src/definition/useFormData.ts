@@ -1,5 +1,6 @@
 import { createStore, useStore } from "zustand"
 import { createJSONStorage, persist } from "zustand/middleware"
+import { immer } from "zustand/middleware/immer"
 import { Definition } from "./schema"
 
 type Actions = {
@@ -7,7 +8,7 @@ type Actions = {
   saveFormData: (data: Partial<Definition>) => void
 }
 
-const defaultValues: Definition = {
+export const defaultValues: Definition = {
   "home-step": {
     category: "recruiter",
   },
@@ -25,23 +26,27 @@ const defaultValues: Definition = {
 }
 
 /**
- * Hook to get and handle the state of the form.
+ * Vanilla store to handle the form data.
  *
  * @example
  * ```ts
- * const { formData, saveFormData, resetFormData } = useFormData();
+ * const { getState, setState, subscribe, destroy } = vanillaStoreFormData
  * ```
  */
 export const vanillaStoreFormData = createStore<Actions & { formData: Definition }>()(
   persist(
-    (set, get) => ({
+    immer((set) => ({
       formData: defaultValues,
-      saveFormData: (data: Partial<Definition>) => set({ formData: { ...get().formData, ...data } }),
+      saveFormData: (data: Partial<Definition>) => {
+        set((state) => {
+          state.formData = { ...state.formData, ...data }
+        })
+      },
       resetFormData: () =>
         set({
           formData: defaultValues,
         }),
-    }),
+    })),
     {
       name: "wizzardry-form",
       storage: createJSONStorage(() => sessionStorage),
@@ -49,5 +54,13 @@ export const vanillaStoreFormData = createStore<Actions & { formData: Definition
   ),
 )
 
+/**
+ * Hook to get and handle the state of the form.
+ *
+ * @example
+ * ```ts
+ * const { formData, saveFormData, resetFormData } = useFormData();
+ * ```
+ */
 export const useFormData = (selector: (state: Actions & { formData: Definition }) => unknown) =>
   useStore(vanillaStoreFormData, selector)
